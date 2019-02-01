@@ -160,7 +160,7 @@ function(value: any,source: any,dest: any,options?: object){}
 * options(object, optional): Mapping options;
 
 Custom conversion function can be set by type parameter.
-If you just pass a function to the annotation, like this **mapping(fn)**, then it is equivalent to **{ type: fn }**.
+If you just pass a function to the annotation, like this **mapping(fn)**, then it is equivalent to **mapping({ type: fn })**.
 ```
 import 'reflect-metadata';
 import { mapping, map } from 'auto-mapping';
