@@ -1,4 +1,4 @@
-# auto-mapper
+# auto-mapping
 Map and convert objects automatically in typescript.
 # Features
 * Map object to an instance of a class by annotation;
@@ -7,7 +7,7 @@ Map and convert objects automatically in typescript.
 * Multiple data source mappings;
 # Installation
 
->`$ npm install --save auto-mapper`
+>`$ npm install --save auto-mapping`
 
 # Getting started
 To enable experimental support for decorators, you must enable the experimentalDecorators compiler option either on the command line or in your tsconfig.json:
@@ -20,7 +20,7 @@ To enable experimental support for decorators, you must enable the experimentalD
 }
 ```
 ```
-import { mapping, map } from 'auto-mapper';
+import { mapping, map } from 'auto-mapping';
 
 class Person {
     @mapping({ type: String })
@@ -47,7 +47,7 @@ If you have already imported **reflect-metadata** modules into your project, it 
 The array type must declare the **type** parameter at any time.
 ```
 import 'reflect-metadata';
-import { mapping, map } from 'auto-mapper';
+import { mapping, map } from 'auto-mapping';
 
 class Person {
     @mapping()
@@ -90,7 +90,7 @@ Map an object to an instance of the specified type.
 # Array
 Because the type of the array cannot be automatically derived, the type parameter must be specified at all times and the value must be an array.
 ```
-import { mapping, map } from 'auto-mapper';
+import { mapping, map } from 'auto-mapping';
 
 class ArrayTest {
     @mapping({ type: [Number] })
@@ -108,7 +108,7 @@ ArrayTest { numbers: [ 1, 2, 3 ] }
 ```
 If an property is declared as array, but the source value is not an array, the result is wrapped into an array.
 ```
-import { mapping, map } from 'auto-mapper';
+import { mapping, map } from 'auto-mapping';
 
 class ArrayTest {
     @mapping({ type: [Number], path:'number' })
@@ -127,7 +127,7 @@ ArrayTest { numbers: [ 1 ] }
 ## Multiple Data Source
 The default data source mapping config named **default**, you can set multiple configurations by **source** option to map multiple data sources.
 ```
-import { mapping, map } from 'auto-mapper';
+import { mapping, map } from 'auto-mapping';
 
 class Person {
     @mapping({ type: String })
@@ -163,7 +163,7 @@ Custom conversion function can be set by type parameter.
 If you just pass a function to the annotation, like this **mapping(fn)**, then it is equivalent to **{ type: fn }**.
 ```
 import 'reflect-metadata';
-import { mapping, map } from 'auto-mapper';
+import { mapping, map } from 'auto-mapping';
 
 function trim(value: string) {
     return value && value.trim();
