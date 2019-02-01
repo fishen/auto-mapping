@@ -1,0 +1,42 @@
+{
+  "name": "auto-mapper",
+  "version": "1.0.0",
+  "description": "map, copy and convert object in typescript",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/gulp browserify",
+    "browserify": "./node_modules/.bin/gulp browserify",
+    "test": "node ./test/index.js"
+  },
+  "keywords": [
+    "mapping",
+    "mapper",
+    "annotation",
+    "convertion"
+  ],
+  "author": "fisher <i.yu@qq.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fishen/auto-mapper.git"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "reflect-metadata": "^0.1.13",
+    "browserify": "^16.2.3",
+    "gulp": "^4.0.0",
+    "gulp-run": "^1.7.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-tslint": "^8.1.3",
+    "gulp-typescript": "^5.0.0",
+    "gulp-uglify": "^3.0.1",
+    "tsify": "^4.0.1",
+    "tslint": "^5.12.1",
+    "typescript": "^3.2.4",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  }
+}
