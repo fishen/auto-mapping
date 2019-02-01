@@ -1,7 +1,7 @@
 {
   "name": "auto-mapper",
   "version": "1.0.0",
-  "description": "map, copy and convert object in typescript",
+  "description": "map and convert object in typescript",
   "main": "index.js",
   "directories": {
     "test": "test"

@@ -56,6 +56,7 @@ export class Property<T> implements IProperty<T> {
 
     convert(value: any, src: any, dest: T, options?: IMappingOptions) {
         if (Array.isArray(this.type)) {
+            if (value === undefined) return value;
             const convert = getConverter(this.type[0]);
             value = Array.isArray(value) ? value : [value];
             value = value.map((item: any) => convert(item, src, dest, options));
