@@ -74,7 +74,7 @@ Person { name: 'fisher', gender: true, age: 18 }
 ## @mapping(options: object | function)
 Configuring property mapping information, If the argument is a function, then it is equivalent to **{ type: options }**.
 * **type**(function | [function]): The property decalre type, it is always necessary if the property type is an array. Tt is optional if the module 'refleat-metadata' has been imported in your project. It also can be used to set custom conversion function, it will use default value if the conversion throws an error.
-* **path**(string): The property path in the source object, such as 'a.b.c','a.b[0].c', default is the current path name.
+* **path**(string): The property path in the source object, such as 'a.b.c','a.b[0].c', default is the current path name. Use the dot symbol ('.') to indicates the current path.
 * **separator**(string): The property path separator, default is '.'.
 * **order**(number): The order for the property generated, default is 0.
 * **source**(string): The source object name, default name is 'default', it is required if you want to map data from multiple data sources.
@@ -86,6 +86,7 @@ Map an object to an instance of the specified type.
 * **constructor**(function): The type of instance, the constructor function of the class
 * **options**(string, optional): Mapping options.
     * **source**(string): The source object name, default is 'default', it is required if you want to map data from multiple data sources.
+    * **useDefaultSource**(boolean): Use the default mapping configuration when the current source configuration is missing, default is **true**. 
 ***
 # Array
 Because the type of the array cannot be automatically derived, the type parameter must be specified at all times and the value must be an array.
@@ -206,3 +207,8 @@ Person {
   info: 'I am Lei Lee who come from NEW YORK.' 
 }
 ```
+# Update Log
+## 1.0.2
+* add **useDefaultSource** option to share configuration with default source ;
+* surport current path by use **dot('.')** ;
+* add .npmignore file ;

@@ -6,3 +6,4 @@ import './custom-class';
 import './array';
 import './multi-data-source';
 import './order';
+import './use-default-source';

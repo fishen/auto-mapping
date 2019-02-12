@@ -2,7 +2,10 @@ const path = require('path');
 
 module.exports = {
     mode: 'production',
-    entry: './src/index.ts',
+    entry: {
+        index: './src/index.ts',
+        test: './test/index.ts'
+    },
     devtool: 'inline-source-map',
     module: {
         rules: [
@@ -17,8 +20,8 @@ module.exports = {
         extensions: ['.ts']
     },
     output: {
-        filename: 'index.js',
+        filename: '[name].js',
         path: path.resolve(__dirname),
-        libraryTarget:'commonjs'
+        libraryTarget: 'commonjs'
     }
 };

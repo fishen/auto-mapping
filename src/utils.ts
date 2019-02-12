@@ -2,7 +2,7 @@ export function validAssign(source: any, dest: any) {
     source = source || {};
     for (const key in dest) {
         if (dest[key] !== undefined) {
-            source[key] = dest[key]
+            source[key] = dest[key];
         }
     }
     return source;
