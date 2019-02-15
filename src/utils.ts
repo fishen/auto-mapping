@@ -18,3 +18,11 @@ export function pushByOrder<T>(array: T[], item: T, selector: (item: T) => any) 
     }
     return array.push(item);
 }
+
+export function isValid(value: any) {
+    if (value === undefined) return false;
+    if (value === null) return false;
+    if (value !== value && isNaN(value)) return false;
+    if (value instanceof Date && isNaN(value.valueOf())) return false;
+    return true;
+}

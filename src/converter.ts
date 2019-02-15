@@ -1,15 +1,15 @@
 import { PropertyType, IMappingOptions, IConverter } from "./interface";
 import { DEFAULT_PROPERTY_SOURCE, PROPERTIES_KEY } from "./constants";
 import { Property } from "./property";
-import { pushByOrder } from "./utils";
+import { pushByOrder, isValid } from "./utils";
 
 const SYSTEM_TYPES: Array<PropertyType<any>> = [String, Boolean, Number, Date];
 
 const SYSTEM_CONVERTERS: Array<IConverter<any>> = [
-  (value) => value && String(value),
+  (value) => isValid(value) ? String(value) : value,
   (value) => Boolean(value),
   (value) => Number(value),
-  (value) => value && new Date(value),
+  (value) => isValid(value) ? new Date(value) : value,
 ];
 
 export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
@@ -74,9 +74,9 @@ export function map<T extends new (...args: any[]) => any>
     } catch (error) {
       console.error(error);
     }
-    if (result !== undefined) {
+    if (isValid(result)) {
       Object.assign(instance, { [property.name]: result });
-    } else if (property.default) {
+    } else if ('default' in property) {
       Object.assign(instance, { [property.name]: property.default });
     }
   });

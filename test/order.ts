@@ -2,7 +2,7 @@ import { mapping, map } from '../index';
 import dataSource from './data-source';
 
 class Person {
-    @mapping({ convert: (_src, dest) => dest.name, order: 1 })
+    @mapping({ type: (_src, dest) => dest.name, order: 1 })
     fullName: string;
     @mapping({ type: String })
     name: string = 'jack';

@@ -1,7 +1,7 @@
 import { PropertyType, IProperty, IMappingOptions } from './interface';
 import { getConverter } from './converter';
 import { DEFAULT_PROPERTY_SOURCE, DEFAULT_PROPERTY_SEP, CURRENT_PATH } from './constants';
-import { validAssign } from './utils';
+import { validAssign, isValid } from './utils';
 
 export class Property<T> implements IProperty<T> {
   path: string;
@@ -17,6 +17,13 @@ export class Property<T> implements IProperty<T> {
     const property = new Property();
     property.name = name;
     validAssign(property, options);
+    if (options.domain) {
+      if (options.path) {
+        console.warn('The option domain will be ignored when used with path.');
+      } else {
+        property.path = [options.domain, name].join(property.separator);
+      }
+    }
     property.path = property.path || name;
     if (!property.type && Reflect && 'getMetadata' in Reflect) {
       const designType = (Reflect as any).getMetadata("design:type", target, name);
@@ -58,7 +65,7 @@ export class Property<T> implements IProperty<T> {
 
   convert(value: any, src: any, dest: T, options?: IMappingOptions) {
     if (Array.isArray(this.type)) {
-      if (value === undefined) return value;
+      if (!isValid(value)) return value;
       const convert = getConverter(this.type[0]);
       value = Array.isArray(value) ? value : [value];
       value = value.map((item: any) => convert(item, src, dest, options));

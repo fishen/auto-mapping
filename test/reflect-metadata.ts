@@ -15,12 +15,11 @@ class Person extends Base {
     @mapping({ path: 'src.number' })
     num: number;
     @mapping()
-    date: Date;
+    date: Date = new Date();
 }
 const result = map(dataSource, Person);
 if (result) {
     console.assert(result.name === dataSource.name, '普通属性获取失败');
-    console.assert(isNaN(result.age), '普通类型转换失败');
     console.assert(!!result.num, '拉取对象失败');
     console.assert(result.num === +dataSource.src.number, '普通类型转换失败');
     console.assert(result.gender === undefined, '获取不存在的属性不为空');

@@ -43,7 +43,7 @@ output:
 Person { name: 'fisher', gender: true, age: 18 }
 ```
 # More Convenient Use(reflect-metadata)
-If you have already imported **reflect-metadata** modules into your project, it will infer type automatic except array type.
+If you have already imported **reflect-metadata** module into your project, it will infer type automatic except array type.
 The array type must declare the **type** parameter at any time.
 ```
 import 'reflect-metadata';
@@ -73,6 +73,7 @@ Person { name: 'fisher', gender: true, age: 18 }
 
 ## @mapping(options: object | function)
 Configuring property mapping information, If the argument is a function, then it is equivalent to **{ type: options }**.
+* **domain**(string): The parent path of current property, the option domain will be ignored when used with path. 
 * **type**(function | [function]): The property decalre type, it is always necessary if the property type is an array. Tt is optional if the module 'refleat-metadata' has been imported in your project. It also can be used to set custom conversion function, it will use default value if the conversion throws an error.
 * **path**(string): The property path in the source object, such as 'a.b.c','a.b[0].c', default is the current path name. Use the dot symbol ('.') to indicates the current path.
 * **separator**(string): The property path separator, default is '.'.
@@ -153,7 +154,7 @@ Person { name: 'fisher' } Person { name: 'jack' }
 ## Custom Conversion
 The signature of the custom conversion function is as follows：
 ```
-function(value: any,source: any,dest: any,options?: object){}
+function(value: any, source: any, dest: any, options?: object){}
 ```
 * value(any): The value which current path matched in the source object;
 * source(any): The source object;
@@ -207,7 +208,10 @@ Person {
   info: 'I am Lei Lee who come from NEW YORK.' 
 }
 ```
-# Update Log
+# Update Logs
+## 1.0.3
+* add **domain** option into *mapping* options which can set parent path ;
+* fixed an issue where the default value could not be set correctly ;
 ## 1.0.2
 * add **useDefaultSource** option to share configuration with default source ;
 * surport current path by use **dot('.')** ;
