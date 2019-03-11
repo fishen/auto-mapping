@@ -1,6 +1,6 @@
 {
   "name": "auto-mapping",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "map and convert object in typescript",
   "main": "index.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "webpack",
-    "test": "mocha --require ts-node/register test/*.ts",
+    "test": "webpack && mocha --require ts-node/register test/*.ts",
     "ts": "ts-node"
   },
   "keywords": [
@@ -24,9 +24,9 @@
     "url": "https://github.com/fishen/auto-mapping.git"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "reflect-metadata": "^0.1.13",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",
     "chai": "^4.2.0",

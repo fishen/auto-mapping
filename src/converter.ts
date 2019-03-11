@@ -14,7 +14,7 @@ const SYSTEM_CONVERTERS: Array<IConverter<any>> = [
 
 export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
   if (typeof type === 'function') {
-    if (Reflect.hasMetadata(PROPERTIES_KEY, type.prototype)) {
+    if (PROPERTIES_KEY in type.prototype) {
       return (value: any, _src: any, _dest: T, options?: IMappingOptions) => map(value, type as any, options);
     } else {
       const index = SYSTEM_TYPES.indexOf(type);
@@ -31,7 +31,7 @@ export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
 
 function getProperties<T>(constuctor: any, options?: IMappingOptions) {
   const sourceName = options && options.source || DEFAULT_PROPERTY_SOURCE;
-  const properties: Record<string, Array<Property<T>>> = Reflect.getMetadata(PROPERTIES_KEY, constuctor.prototype);
+  const properties: Record<string, Array<Property<T>>> = constuctor.prototype[PROPERTIES_KEY];
   if (!properties || !(sourceName in properties)) {
     console.warn(`The type ${constuctor.name} has no mapping annotation declared.`);
     return [];

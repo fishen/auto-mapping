@@ -18,8 +18,6 @@ class Person extends Base {
     num: number;
     @mapping()
     date: Date = new Date();
-    @mapping({ path: 'src' })
-    other: any;
 }
 const result = map(dataSource, Person);
 
@@ -37,5 +35,3 @@ describe('auto get type', () => {
         expect(result.date).to.instanceOf(Date);
     });
 });
-
-console.log(result.other);

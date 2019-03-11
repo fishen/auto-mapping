@@ -23,6 +23,33 @@ To enable experimental support for decorators, you must enable the experimentalD
 import { mapping, map } from 'auto-mapping';
 
 class Person {
+    @mapping({ type: String })
+    name: string;
+    @mapping({ type: Boolean })
+    gender: boolean;
+    @mapping({ path: 'others.number', type: Number })
+    age: number
+}
+const data={
+    name: 'fisher',
+    gender: 1,
+    others: { number: '18' },
+};
+const result = map(data, Person);
+console.log(result);
+```
+output:
+```
+Person { name: 'fisher', gender: true, age: 18 }
+```
+# More Convenient Use(reflect-metadata)
+If you have already imported **reflect-metadata** module into your project, it will infer type automatic except array type.
+The array type must declare the **type** parameter at any time.
+```
+import 'reflect-metadata';
+import { mapping, map } from 'auto-mapping';
+
+class Person {
     @mapping()
     name: string;
     @mapping()
@@ -181,9 +208,10 @@ Person {
 }
 ```
 # Update Logs
+## 1.0.5
+* remove reflect-metadata by default;
 ## 1.0.4
 * fix the problem that the bool type and number type default values cannot take effect;
-* import reflect-metadata by default;
 * add the mocha test framework;
 * remove sourcemap in production env;
 ## 1.0.3

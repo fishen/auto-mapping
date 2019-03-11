@@ -25,7 +25,7 @@ export class Property<T> implements IProperty<T> {
       }
     }
     property.path = property.path || name;
-    if (!property.type) {
+    if (!property.type && Reflect && typeof Reflect.getMetadata === 'function') {
       const designType = Reflect.getMetadata("design:type", target, name);
       property.type = designType === Array ? [] : designType;
     }
