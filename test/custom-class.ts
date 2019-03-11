@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { mapping, map } from '../index';
 import dataSource from './data-source';
+import { expect } from 'chai';
+import 'mocha';
 
 class Address {
     @mapping()
@@ -22,7 +24,11 @@ class Person extends Base {
 }
 
 const result = map(dataSource, Person);
-if (result) {
-    console.assert(result.name === dataSource.name, '普通属性获取失败');
-    console.assert(result.address && result.address instanceof Address, '自定义对象转换失败');
-}
+describe('custom class', () => {
+    it('should be equal to dest property.', () => {
+        expect(result.name).to.equal(dataSource.name);
+    });
+    it('should be a Address type.', () => {
+        expect(result.address).to.be.instanceOf(Address);
+    })
+});

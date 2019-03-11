@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { mapping, map } from '../index';
 import dataSource from './data-source';
+import { expect } from 'chai';
+import 'mocha';
 
 class Base {
     @mapping()
@@ -16,12 +18,24 @@ class Person extends Base {
     num: number;
     @mapping()
     date: Date = new Date();
+    @mapping({ path: 'src' })
+    other: any;
 }
 const result = map(dataSource, Person);
-if (result) {
-    console.assert(result.name === dataSource.name, '普通属性获取失败');
-    console.assert(!!result.num, '拉取对象失败');
-    console.assert(result.num === +dataSource.src.number, '普通类型转换失败');
-    console.assert(result.gender === undefined, '获取不存在的属性不为空');
-    console.assert(result.date instanceof Date, '日期对像转换失败');
-}
+
+describe('auto get type', () => {
+    it('should be equal to origin property.', () => {
+        expect(result.name).to.equal(dataSource.name);
+    });
+    it('should be pull data successfully and it should be a number.', () => {
+        expect(result.num).to.be.an('number');
+    });
+    it('should be undefined when no mapping value exists.', () => {
+        expect(result.gender).to.be.undefined;
+    });
+    it('should be a date type', () => {
+        expect(result.date).to.instanceOf(Date);
+    });
+});
+
+console.log(result.other);

@@ -23,33 +23,6 @@ To enable experimental support for decorators, you must enable the experimentalD
 import { mapping, map } from 'auto-mapping';
 
 class Person {
-    @mapping({ type: String })
-    name: string;
-    @mapping({ type: Boolean })
-    gender: boolean;
-    @mapping({ path: 'others.number', type: Number })
-    age: number
-}
-const data={
-    name: 'fisher',
-    gender: 1,
-    others: { number: '18' },
-};
-const result = map(data, Person);
-console.log(result);
-```
-output:
-```
-Person { name: 'fisher', gender: true, age: 18 }
-```
-# More Convenient Use(reflect-metadata)
-If you have already imported **reflect-metadata** module into your project, it will infer type automatic except array type.
-The array type must declare the **type** parameter at any time.
-```
-import 'reflect-metadata';
-import { mapping, map } from 'auto-mapping';
-
-class Person {
     @mapping()
     name: string;
     @mapping()
@@ -132,8 +105,8 @@ The default data source mapping config named **default**, you can set multiple c
 import { mapping, map } from 'auto-mapping';
 
 class Person {
-    @mapping({ type: String })
-    @mapping({ type: String, source: 'other', path: 'person.name' })
+    @mapping()
+    @mapping({ source: 'other', path: 'person.name' })
     name: string;
 }
 const dataSource1 = {
@@ -164,7 +137,6 @@ function(value: any, source: any, dest: any, options?: object){}
 Custom conversion function can be set by type parameter.
 If you just pass a function to the annotation, like this **mapping(fn)**, then it is equivalent to **mapping({ type: fn })**.
 ```
-import 'reflect-metadata';
 import { mapping, map } from 'auto-mapping';
 
 function trim(value: string) {
@@ -209,10 +181,15 @@ Person {
 }
 ```
 # Update Logs
+## 1.0.4
+* fix the problem that the bool type and number type default values cannot take effect;
+* import reflect-metadata by default;
+* add the mocha test framework;
+* remove sourcemap in production env;
 ## 1.0.3
-* add **domain** option into *mapping* options which can set parent path ;
-* fixed an issue where the default value could not be set correctly ;
+* add **domain** option into *mapping* options which can set parent path;
+* fixed an issue where the default value could not be set correctly;
 ## 1.0.2
-* add **useDefaultSource** option to share configuration with default source ;
-* surport current path by use **dot('.')** ;
-* add .npmignore file ;
+* add **useDefaultSource** option to share configuration with default source;
+* surport current path by use **dot('.')**;
+* add .npmignore file;

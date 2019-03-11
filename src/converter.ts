@@ -1,20 +1,20 @@
 import { PropertyType, IMappingOptions, IConverter } from "./interface";
 import { DEFAULT_PROPERTY_SOURCE, PROPERTIES_KEY } from "./constants";
 import { Property } from "./property";
-import { pushByOrder, isValid } from "./utils";
+import { pushByOrder, isValid, isNil } from "./utils";
 
 const SYSTEM_TYPES: Array<PropertyType<any>> = [String, Boolean, Number, Date];
 
 const SYSTEM_CONVERTERS: Array<IConverter<any>> = [
   (value) => isValid(value) ? String(value) : value,
-  (value) => Boolean(value),
-  (value) => Number(value),
+  (value) => isNil(value) ? undefined : Boolean(value),
+  (value) => isNil(value) ? undefined : Number(value),
   (value) => isValid(value) ? new Date(value) : value,
 ];
 
 export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
   if (typeof type === 'function') {
-    if (PROPERTIES_KEY in type.prototype) {
+    if (Reflect.hasMetadata(PROPERTIES_KEY, type.prototype)) {
       return (value: any, _src: any, _dest: T, options?: IMappingOptions) => map(value, type as any, options);
     } else {
       const index = SYSTEM_TYPES.indexOf(type);
@@ -31,7 +31,7 @@ export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
 
 function getProperties<T>(constuctor: any, options?: IMappingOptions) {
   const sourceName = options && options.source || DEFAULT_PROPERTY_SOURCE;
-  const properties: Record<string, Array<Property<T>>> = constuctor.prototype[PROPERTIES_KEY];
+  const properties: Record<string, Array<Property<T>>> = Reflect.getMetadata(PROPERTIES_KEY, constuctor.prototype);
   if (!properties || !(sourceName in properties)) {
     console.warn(`The type ${constuctor.name} has no mapping annotation declared.`);
     return [];
@@ -61,10 +61,10 @@ function getProperties<T>(constuctor: any, options?: IMappingOptions) {
  */
 export function map<T extends new (...args: any[]) => any>
   (src: any, constuctor: T, options?: IMappingOptions): InstanceType<T> | null {
+  const instance = new constuctor();
   if (src === undefined || src === null || typeof src !== 'object') {
     return null;
   }
-  const instance = new constuctor();
   const properties = getProperties(constuctor, options);
   properties.forEach((property) => {
     let result;

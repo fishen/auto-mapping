@@ -31,7 +31,6 @@ export interface IProperty<T = any> {
   source?: string;
   /**
    * The property decalre type, it is always necessary if the property type is an array.
-   * Tt is optional if the module 'refleat-metadata' has been imported in your project.
    * such as String, [Number]
    */
   type?: PropertyType<T> | [PropertyType<T>];

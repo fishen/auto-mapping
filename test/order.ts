@@ -1,5 +1,7 @@
 import { mapping, map } from '../index';
 import dataSource from './data-source';
+import { expect } from 'chai';
+import 'mocha';
 
 class Person {
     @mapping({ type: (_src, dest) => dest.name, order: 1 })
@@ -9,6 +11,8 @@ class Person {
 }
 const result = map(dataSource, Person);
 
-if (result) {
-    console.assert(result.fullName === dataSource.name, '排序属性获取失败');
-}
+describe('order', () => {
+    it('should be sort as expected.', () => {
+        expect(result.fullName).to.equal(dataSource.name);
+    });
+});

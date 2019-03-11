@@ -1,4 +1,3 @@
-import { mapping } from './src/annotation';
-import { map } from './src/converter';
-
-export { map, mapping };
+import 'reflect-metadata';
+export { mapping } from './src/decorator';
+export { map } from './src/converter';

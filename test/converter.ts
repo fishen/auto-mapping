@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { mapping, map } from '../index';
 import dataSource from './data-source';
+import { expect } from 'chai';
+import 'mocha';
 
 
 class Person {
@@ -15,7 +17,12 @@ class Person {
 }
 
 const result = map(dataSource, Person);
-if (result) {
-    console.assert(typeof result.intro === 'string', '自定义转换失败');
-    console.assert(typeof result.error === 'undefined', '自定义转换抛出错误转换失败');
-}
+
+describe('custom converter', () => {
+    it('should be a string.', () => {
+        expect(result.intro).to.be.an('string');
+    });
+    it('should be undefined.', () => {
+        expect(result.error).to.be.undefined;
+    });
+});

@@ -1,0 +1,19 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ts": "ts-node"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "auto-mapping": "file:../auto-mapping-1.0.4.tgz"
+  },
+  "devDependencies": {
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.3333"
+  }
+}

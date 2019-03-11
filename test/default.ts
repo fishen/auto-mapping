@@ -1,10 +1,12 @@
 import { mapping, map } from '../index';
+import { expect } from 'chai';
+import 'mocha';
 
 class Person {
     @mapping({ type: String })
     name: string = 'fisher';
     @mapping({ type: Boolean })
-    gender: boolean;
+    gender: boolean = true;
     @mapping({ type: Number, default: 18 })
     age: number = 1;
     @mapping({ type: [String] })
@@ -19,9 +21,17 @@ const dataSource: any = {
 }
 const result = map(dataSource, Person);
 
-if (result) {
-    console.assert(result.name === 'fisher', '默认值获取失败');
-    console.assert(result.age === 18, '参数默认值获取失败');
-    console.assert(result.gender === false, '布尔类型转换失败');
-    console.assert(Array.isArray(result.array) && result.array.length === 0, '数组默认值转换失败');
-}
+describe('default value', () => {
+    it('should be set default value when missing corresponding value.', () => {
+        expect(result.name).to.equal('fisher');
+    });
+    it('should first use default value from mapping options.', () => {
+        expect(result.age).to.equal(18);
+    });
+    it('should be covert boolean value successfully.', () => {
+        expect(result.gender).to.be.true;
+    });
+    it('should be covert array value successfully.', () => {
+        expect(result.array).to.be.an('array');
+    });
+});

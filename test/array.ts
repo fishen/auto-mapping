@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { mapping, map } from '../index';
 import dataSource from './data-source';
+import { expect } from 'chai';
+import 'mocha';
 
 class Address {
     @mapping()
@@ -19,7 +21,13 @@ class Person {
 }
 
 const result = map(dataSource, Person);
-if (result) {
-    console.assert(Array.isArray(result.dates), '数组转换失败');
-    console.assert(result.address1[0] instanceof Address, '数组对像转换失败');
-}
+
+describe('array', () => {
+    it('should be a array.', () => {
+        expect(result.dates).to.be.an('array');
+    });
+    it('should be a Address type of array item.', () => {
+        expect(result.address1).to.be.an('array');
+        expect(result.address1[0]).instanceOf(Address);
+    })
+});

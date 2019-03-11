@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { mapping, map } from '../index';
 import dataSource from './data-source';
+import { expect } from 'chai';
+import 'mocha';
 
 class Address {
     @mapping()
@@ -21,8 +23,15 @@ class Person {
 }
 
 const result = map(dataSource, Person);
-if (result) {
-    console.assert(result.cityName === dataSource.address.city, '属性拉取失败');
-    console.assert(typeof result.num === 'number', '拉取基础属性转换失败');
-    console.assert(result.address instanceof Address, '拉取自定义类型属性转换失败')
-}
+
+describe('pull data', () => {
+    it('should be successfull by pulling array data.', () => {
+        expect(result.cityName).to.equal(dataSource.address.city);
+    });
+    it('should be successfull by pulling object data.', () => {
+        expect(result.num).is.an('number');
+    });
+    it('should be convert successfully.', () => {
+        expect(result.address).to.instanceOf(Address);
+    });
+});

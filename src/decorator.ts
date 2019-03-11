@@ -15,8 +15,9 @@ export function mapping<T = any>(options?: IProperty<T> | IConverter<T>) {
         }
         const opts: IProperty<T> = options || {} as any;
         const property = Property.from(opts, target, name);
-        target[PROPERTIES_KEY] = target[PROPERTIES_KEY] || {};
-        target[PROPERTIES_KEY][property.source] = target[PROPERTIES_KEY][property.source] || [];
-        pushByOrder(target[PROPERTIES_KEY][property.source], property, item => item.order);
+        const properties = Reflect.getMetadata(PROPERTIES_KEY, target) || {};
+        properties[property.source] = properties[property.source] || [];
+        pushByOrder(properties[property.source], property, item => item.order);
+        Reflect.defineMetadata(PROPERTIES_KEY, properties, target);
     };
 }

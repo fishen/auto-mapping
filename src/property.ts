@@ -25,14 +25,11 @@ export class Property<T> implements IProperty<T> {
       }
     }
     property.path = property.path || name;
-    if (!property.type && Reflect && 'getMetadata' in Reflect) {
-      const designType = (Reflect as any).getMetadata("design:type", target, name);
+    if (!property.type) {
+      const designType = Reflect.getMetadata("design:type", target, name);
       property.type = designType === Array ? [] : designType;
     }
-    if (!property.type) {
-      console.warn(`The propery ${name} missing 'type' option and it will be treated as any, ` +
-        `you can import module 'reflect-metadata' to get types automatically`);
-    } else if (Array.isArray(property.type) && property.type.length === 0) {
+    if (Array.isArray(property.type) && property.type.length === 0) {
       console.warn(`The propery ${name} missing type declaration and it will treated as any[]`);
     }
     return property;

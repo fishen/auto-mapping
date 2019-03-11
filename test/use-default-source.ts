@@ -1,5 +1,7 @@
 import { mapping, map } from '../index';
 import dataSource from './data-source';
+import { expect } from 'chai';
+import 'mocha';
 
 class Person {
     @mapping({ type: String, source: 'other', path: 'person.lastname' })
@@ -16,8 +18,15 @@ const result = map(dataSource, Person);
 const result1 = map(dataSource1, Person, { source: 'other' });
 const result2 = map(dataSource1, Person, { source: 'other', useDefaultSource: false });
 
-if (result && result1) {
-    console.assert(result.name === dataSource.name && result1.name === dataSource1.person.lastname, '多个数据源属性获取失败');
-    console.assert(result1.age === dataSource1.src.number, '使用默认数据源配置失败');
-    console.assert(result2.age === undefined, '不使用默认数据源配置失败');
-}
+describe('default source', () => {
+    it('should be equal to correct property.', () => {
+        expect(result.name).to.equal(dataSource.name);
+        expect(result1.name).to.equal(dataSource1.person.lastname);
+    });
+    it('should be use the default source configuration.', () => {
+        expect(result1.age).to.be.equal(dataSource1.src.number);
+    });
+    it('should be undefined when set useDefaultSource to false.', () => {
+        expect(result2.age).to.be.undefined;
+    });
+});

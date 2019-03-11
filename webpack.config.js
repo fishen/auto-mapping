@@ -4,9 +4,8 @@ module.exports = {
     mode: 'production',
     entry: {
         index: './index.ts',
-        test: './test/index.ts'
     },
-    devtool: 'inline-source-map',
+    devtool: false,
     module: {
         rules: [
             {
