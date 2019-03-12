@@ -2,3 +2,8 @@ test/
 package-lock.json
 *.tgz
 examples/
+src/
+.vscode/
+tslint.json
+tsconfig.json
+webpack.config.js

@@ -1,25 +1,17 @@
 const path = require('path');
 
 module.exports = {
-    mode: 'production',
-    entry: {
-        index: './index.ts',
-    },
-    devtool: false,
+    mode: 'development',
+    entry: './src/index.ts',
+    devtool: "source-map",
     module: {
-        rules: [
-            {
-                test: /\.tsx?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
-            }
-        ]
+        rules: [{ test: /\.tsx?$/, loader: "ts-loader" }]
     },
     resolve: {
         extensions: ['.ts']
     },
     output: {
-        filename: '[name].js',
+        filename: 'index.js',
         path: path.resolve(__dirname),
         libraryTarget: 'commonjs'
     }

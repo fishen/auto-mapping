@@ -1,51 +1,51 @@
-import { PropertyType, IProperty, IMappingOptions } from './interface';
-import { getConverter } from './converter';
-import { DEFAULT_PROPERTY_SOURCE, DEFAULT_PROPERTY_SEP, CURRENT_PATH } from './constants';
-import { validAssign, isValid } from './utils';
+import { CURRENT_PATH, DEFAULT_PROPERTY_SEP, DEFAULT_PROPERTY_SOURCE } from "./constants";
+import { getConverter } from "./converter";
+import { IMappingOptions, IProperty, PropertyType } from "./interface";
+import { isValid, validAssign } from "./utils";
 
 export class Property<T> implements IProperty<T> {
-  path: string;
-  type: PropertyType<T>;
-  separator: string = DEFAULT_PROPERTY_SEP;
-  source: string = DEFAULT_PROPERTY_SOURCE;
-  default: any;
-  order: number = 0;
-  name: string;
-
-  static from<T>(options: IProperty<T>, target: any, name: string) {
-    options = typeof options === 'function' ? { type: options } : options;
+  public static from<T>(options: IProperty<T>, target: any, name: string) {
+    options = typeof options === "function" ? { type: options } : options;
     const property = new Property();
     property.name = name;
     validAssign(property, options);
     if (options.domain) {
-      if (options.path) {
-        console.warn('The option domain will be ignored when used with path.');
-      } else {
+      if (!options.path) {
+        // The option domain will be ignored when used with path.
         property.path = [options.domain, name].join(property.separator);
       }
     }
     property.path = property.path || name;
-    if (!property.type && Reflect && typeof Reflect.getMetadata === 'function') {
-      const designType = Reflect.getMetadata("design:type", target, name);
+    if (!property.type && typeof Reflect === "object" && "getMetadata" in Reflect) {
+      const designType = (Reflect as any).getMetadata("design:type", target, name);
       property.type = designType === Array ? [] : designType;
-    }
-    if (Array.isArray(property.type) && property.type.length === 0) {
-      console.warn(`The propery ${name} missing type declaration and it will treated as any[]`);
     }
     return property;
   }
+  public path: string;
+  public type: PropertyType<T>;
+  public separator: string = DEFAULT_PROPERTY_SEP;
+  public source: string = DEFAULT_PROPERTY_SOURCE;
+  public default: any;
+  public order: number = 0;
+  public name: string;
 
-  resolvePath(src: any) {
-    if (!src) return undefined;
-    if (this.path === CURRENT_PATH) return src;
+  public resolvePath(src: any) {
+    if (!src) {
+      return undefined;
+    } else if (this.path === CURRENT_PATH) {
+      return src;
+    }
     const pathes = this.path.split(this.separator);
-    for (var index = 0, length = pathes.length; index < length; index++) {
+    let index = 0;
+    const length = pathes.length;
+    for (; index < length; index++) {
       const path = pathes[index];
       const matches = path.match(/^(.+)\[(\d)\]$/);
       if (matches) {
-        const [, name, index] = matches;
-        if (Array.isArray(src[name]) && src[name].length > index) {
-          src = src[name][index];
+        const [, name, idx] = matches;
+        if (Array.isArray(src[name]) && src[name].length > idx) {
+          src = src[name][idx];
         } else {
           break;
         }
@@ -60,9 +60,11 @@ export class Property<T> implements IProperty<T> {
     return index === length ? src : undefined;
   }
 
-  convert(value: any, src: any, dest: T, options?: IMappingOptions) {
+  public convert(value: any, src: any, dest: T, options?: IMappingOptions) {
     if (Array.isArray(this.type)) {
-      if (!isValid(value)) return value;
+      if (!isValid(value)) {
+        return value;
+      }
       const convert = getConverter(this.type[0]);
       value = Array.isArray(value) ? value : [value];
       value = value.map((item: any) => convert(item, src, dest, options));

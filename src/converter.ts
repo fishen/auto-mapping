@@ -1,7 +1,7 @@
-import { PropertyType, IMappingOptions, IConverter } from "./interface";
 import { DEFAULT_PROPERTY_SOURCE, PROPERTIES_KEY } from "./constants";
+import { IConverter, IMappingOptions, PropertyType } from "./interface";
 import { Property } from "./property";
-import { pushByOrder, isValid, isNil } from "./utils";
+import { isNil, isValid, pushByOrder } from "./utils";
 
 const SYSTEM_TYPES: Array<PropertyType<any>> = [String, Boolean, Number, Date];
 
@@ -13,12 +13,12 @@ const SYSTEM_CONVERTERS: Array<IConverter<any>> = [
 ];
 
 export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
-  if (typeof type === 'function') {
+  if (typeof type === "function") {
     if (PROPERTIES_KEY in type.prototype) {
-      return (value: any, _src: any, _dest: T, options?: IMappingOptions) => map(value, type as any, options);
+      return (value: any, src: any, dest: T, options?: IMappingOptions) => map(value, type as any, options);
     } else {
       const index = SYSTEM_TYPES.indexOf(type);
-      if (~index) {
+      if (index >= 0) {
         return SYSTEM_CONVERTERS[index];
       } else {
         return type as any;
@@ -33,7 +33,6 @@ function getProperties<T>(constuctor: any, options?: IMappingOptions) {
   const sourceName = options && options.source || DEFAULT_PROPERTY_SOURCE;
   const properties: Record<string, Array<Property<T>>> = constuctor.prototype[PROPERTIES_KEY];
   if (!properties || !(sourceName in properties)) {
-    console.warn(`The type ${constuctor.name} has no mapping annotation declared.`);
     return [];
   }
   let defaultProperties = properties[DEFAULT_PROPERTY_SOURCE];
@@ -41,10 +40,12 @@ function getProperties<T>(constuctor: any, options?: IMappingOptions) {
     const useDefaultSource = (options && options.useDefaultSource) !== false;
     if (useDefaultSource && Array.isArray(defaultProperties)) {
       defaultProperties = defaultProperties.slice();
-      properties[sourceName].forEach(p => {
-        const index = defaultProperties.findIndex(m => p.name === m.name);
-        ~index && defaultProperties.splice(index, 1);
-        pushByOrder(defaultProperties, p, p => p.order);
+      properties[sourceName].forEach((p) => {
+        const index = defaultProperties.findIndex((m) => p.name === m.name);
+        if (index >= 0) {
+          defaultProperties.splice(index, 1);
+        }
+        pushByOrder(defaultProperties, p, (m) => m.order);
       });
     } else {
       return properties[sourceName];
@@ -59,10 +60,10 @@ function getProperties<T>(constuctor: any, options?: IMappingOptions) {
  * @param constuctor The type of instance, the constructor function of the class.
  * @param options Mapping options.
  */
-export function map<T extends new (...args: any[]) => any>
-  (src: any, constuctor: T, options?: IMappingOptions): InstanceType<T> | null {
+export function map<T extends new (...args: any[]) => any
+>(src: any, constuctor: T, options?: IMappingOptions): InstanceType<T> | null {
   const instance = new constuctor();
-  if (src === undefined || src === null || typeof src !== 'object') {
+  if (src === undefined || src === null || typeof src !== "object") {
     return null;
   }
   const properties = getProperties(constuctor, options);
@@ -76,7 +77,7 @@ export function map<T extends new (...args: any[]) => any>
     }
     if (isValid(result)) {
       Object.assign(instance, { [property.name]: result });
-    } else if ('default' in property) {
+    } else if ("default" in property) {
       Object.assign(instance, { [property.name]: property.default });
     }
   });

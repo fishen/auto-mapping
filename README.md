@@ -208,7 +208,10 @@ Person {
 }
 ```
 # Update Logs
-## 1.0.5
+## 1.0.7
+* remove source code and reduce module size.
+* and tslint.
+## 1.0.6
 * remove reflect-metadata by default;
 ## 1.0.4
 * fix the problem that the bool type and number type default values cannot take effect;

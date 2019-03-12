@@ -1,4 +1,4 @@
-import { mapping, map } from '../index';
+import { mapping, map } from '../src/index';
 import dataSource from './data-source';
 import { expect } from 'chai';
 import 'mocha';

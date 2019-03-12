@@ -24,8 +24,13 @@ export function isNil(value: any) {
 }
 
 export function isValid(value: any) {
-    if (isNil(value)) return false;
-    if (value !== value && isNaN(value)) return false;
-    if (value instanceof Date && isNaN(value.valueOf())) return false;
-    return true;
+    if (isNil(value)) {
+        return false;
+    } else if (value !== value && isNaN(value)) {
+        return false;
+    } else if (value instanceof Date && isNaN(value.valueOf())) {
+        return false;
+    } else {
+        return true;
+    }
 }
