@@ -25,7 +25,7 @@ import { mapping, map } from 'auto-mapping';
 class Person {
     @mapping({ type: String })
     name: string;
-    @mapping({ type: Boolean })
+    @mapping(Boolean) // short form
     gender: boolean;
     @mapping({ path: 'others.number', type: Number })
     age: number
@@ -76,7 +76,6 @@ Configuring property mapping information, If the argument is a function, then it
 * **domain**(string): The parent path of current property, the option domain will be ignored when used with path. 
 * **type**(function | [function]): The property decalre type, it is always necessary if the property type is an array. Tt is optional if the module 'refleat-metadata' has been imported in your project. It also can be used to set custom conversion function, it will use default value if the conversion throws an error.
 * **path**(string): The property path in the source object, such as 'a.b.c','a.b[0].c', default is the current path name. Use the dot symbol ('.') to indicates the current path.
-* **separator**(string): The property path separator, default is '.'.
 * **order**(number): The order for the property generated, default is 0.
 * **source**(string): The source object name, default name is 'default', it is required if you want to map data from multiple data sources.
 * **default**(any): Default value, multiple data sources can specify multiple different default values.
@@ -208,6 +207,9 @@ Person {
 }
 ```
 # Update Logs
+## 1.0.9
+* remove separator option from Property and uniform use dot.
+* add secure-template module.
 ## 1.0.7
 * remove source code and reduce module size.
 * and tslint.

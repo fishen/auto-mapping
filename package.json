@@ -1,16 +1,17 @@
 {
   "name": "auto-mapping",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "map and convert object in typescript",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "webpack && mocha --require ts-node/register test/*.ts",
+    "test": "mocha --require ts-node/register test/*.ts",
     "ts": "ts-node",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "generate-dts": "tsc src/index.ts -d -t es6 --emitDeclarationOnly --declarationDir dts",
+    "fix": "tslint -c tslint.json 'src/**/*.ts' --fix",
+    "generate-dts": "tsc src/index.ts -d -t es6 --module commonjs --emitDeclarationOnly --declarationDir dts",
     "clean-dts": "rm -r dts",
     "bundle-dts": "dts-bundle --name auto-mapping --main dts/index.d.ts --out ../index.d.ts",
     "dts": "npm run generate-dts&&npm run bundle-dts&&npm run clean-dts",
@@ -30,7 +31,9 @@
     "type": "git",
     "url": "https://github.com/fishen/auto-mapping.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "secure-template": "^1.0.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",

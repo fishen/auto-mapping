@@ -35,7 +35,7 @@ declare module 'auto-mapping/interface' {
                 */
             default?: any;
             /**
-                * The parent path of current property, the resulting path is `${domain}${separator}${currentPropertyKey}`
+                * The parent path of current property, the resulting path is `${domain}.${currentPropertyKey}`
                 * The option domain will be ignored when used with path.
                 */
             domain?: string;
@@ -47,10 +47,6 @@ declare module 'auto-mapping/interface' {
                 * The property path in the source object, such as 'a.b.c','a.b[0].c', default value is current property name.
                 */
             path?: string;
-            /**
-                * The property path separator, default is '.'.
-                */
-            separator?: string;
             /**
                 * The source object name, default name is 'default',
                 * it is required if you want to map data from multiple data sources.

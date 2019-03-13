@@ -14,7 +14,7 @@ const SYSTEM_CONVERTERS: Array<IConverter<any>> = [
 
 export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
   if (typeof type === "function") {
-    if (PROPERTIES_KEY in type.prototype) {
+    if (type.prototype && PROPERTIES_KEY in type.prototype) {
       return (value: any, src: any, dest: T, options?: IMappingOptions) => map(value, type as any, options);
     } else {
       const index = SYSTEM_TYPES.indexOf(type);
