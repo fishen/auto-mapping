@@ -207,6 +207,8 @@ Person {
 }
 ```
 # Update Logs
+## 1.0.12
+* exclude dependent files during the packaging process.
 ## 1.0.9
 * remove separator option from Property and uniform use dot.
 * add secure-template module.

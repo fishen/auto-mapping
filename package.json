@@ -1,6 +1,6 @@
 {
   "name": "auto-mapping",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "map and convert object in typescript",
   "main": "index.js",
   "directories": {
@@ -46,6 +46,7 @@
     "tslint": "^5.14.0",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.3",
-    "webpack-cli": "^3.2.3"
+    "webpack-cli": "^3.2.3",
+    "webpack-node-externals": "^1.7.2"
   }
 }
