@@ -3,12 +3,19 @@ import { mapping, map, after } from "../src/index";
 import { expect } from "chai";
 import "mocha";
 
-class Person {
+class Base {
+    [after](src: any, options: any) {
+        console.log(1);
+    }
+}
+
+class Person extends Base {
     @mapping()
     public gender: boolean;
     @mapping()
     public num: number = 1;
     [after](src: any, options: any) {
+        console.log(2);
         //set value manually.
         this.gender = true;
         //override origin property value.;
@@ -19,7 +26,7 @@ class Person {
 }
 const result = map({ num: 10 }, Person);
 
-describe("auto get type", () => {
+describe("after extension", () => {
     it("should not be undefined when rewrite no exists value.", () => {
         expect(result.gender).to.be.not.undefined;
     });

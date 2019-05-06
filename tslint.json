@@ -6,6 +6,7 @@
     "jsRules": {},
     "rules": {
         "no-console": false,
-        "only-arrow-functions": false
+        "only-arrow-functions": false,
+        "forin": false
     }
 }

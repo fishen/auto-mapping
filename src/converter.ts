@@ -27,7 +27,8 @@ export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
 
 function getProperties<T>(constuctor: any, options?: IMappingOptions) {
   const sourceName = options && options.source || DEFAULT_PROPERTY_SOURCE;
-  const properties: Record<string, Array<Property<T>>> = constuctor.prototype[PROPERTIES_KEY];
+  let properties: Record<string, Array<Property<T>>>;
+  properties = constuctor[PROPERTIES_KEY] || constuctor.prototype[PROPERTIES_KEY];
   if (!properties || !(sourceName in properties)) {
     return [];
   }

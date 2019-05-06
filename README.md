@@ -126,7 +126,17 @@ console.log(result);
 ```
 ArrayTest { numbers: [ 1 ] }
 ```
-## Multiple Data Source
+# Inheritance
+When using class inheritance, you should also add a **mapping** decorator for the class to prevent the derived class from polluting the mapping configuration information of the parent class.
+```
+import { mapping } from 'auto-mapping';
+
+@mapping
+class Base{}
+@mapping
+class SubClass extends Base{}
+```
+# Multiple Data Source
 The default data source mapping config named **default**, you can set multiple configurations by **source** option to map multiple data sources.
 ```
 import { mapping, map } from 'auto-mapping';
@@ -151,7 +161,7 @@ console.log(result1, result2);
 ```
 Person { name: 'fisher' } Person { name: 'jack' }
 ```
-## Custom Conversion
+# Custom Conversion
 The signature of the custom conversion function is as follows：
 ```
 function(value: any, source: any, dest: any, options?: object){}
@@ -252,7 +262,9 @@ If the function returns a value that is not undefined, it will replace the map r
 { num: 100, gender: true, a: 1, b: 2 } false
 ```
 # Update Logs
-## 1.0.13
+## 1.0.15
+* fix a problem which derived class pollution parent class's mapping configurations.
+## 1.0.14
 * add **after** symbol function to extend map function;
 ## 1.0.12
 * exclude dependent files during the packaging process.

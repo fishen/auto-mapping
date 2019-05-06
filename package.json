@@ -1,6 +1,6 @@
 {
   "name": "auto-mapping",
-  "version": "1.0.13",
+  "version": "1.0.15",
   "description": "map and convert object in typescript",
   "main": "index.js",
   "directories": {
@@ -14,7 +14,8 @@
     "dts": "gulp dts",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
-    "build": "npm run type-check&&npm run lint&&webpack"
+    "build": "npm run type-check&&npm run lint&&webpack",
+    "pack": "npm run build&&npm run dts&&npm pack"
   },
   "keywords": [
     "mapping",

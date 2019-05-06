@@ -3,6 +3,8 @@ declare module "auto-mapping/src/constants" {
     export const DEFAULT_PROPERTY_SEP = ".";
     export const DEFAULT_PROPERTY_SOURCE = "default";
     export const PROPERTIES_KEY: any;
+    export const BEFORE_KEY: any;
+    export const AFTER_KEY: any;
 }
 declare module "auto-mapping/src/interface" {
     export type IConverter<T> = (value: any, src: any, dest: T, options?: IMappingOptions) => any;
@@ -85,9 +87,10 @@ declare module "auto-mapping/src/decorator" {
      * The required annotations for object mapping which can only be used on instance properties.
      * @param options mapping options
      */
-    export function mapping<T = any>(options?: IProperty<T> | IConverter<T>): (target: any, name: string) => void;
+    export function mapping<T = any>(options?: IProperty<T> | IConverter<T>): (target: any, name?: string) => void;
 }
 declare module "auto-mapping" {
     export { mapping } from "auto-mapping/src/decorator";
     export { map } from "auto-mapping/src/converter";
+    export { AFTER_KEY as after } from "auto-mapping/src/constants";
 }

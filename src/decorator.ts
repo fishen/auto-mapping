@@ -8,9 +8,14 @@ import { pushByOrder } from "./utils";
  * @param options mapping options
  */
 export function mapping<T = any>(options?: IProperty<T> | IConverter<T>) {
-    return function(target: any, name: string) {
-        if (typeof target === "function") {
-            console.warn("Mapping static members is not allowed, it is a dangerous operation.");
+    return function(target: any, name?: string) {
+        if (typeof target === "function" && PROPERTIES_KEY in target.prototype) {
+            const props = target.prototype[PROPERTIES_KEY];
+            target[PROPERTIES_KEY] = Object.keys(props)
+                .reduce((result, key) => {
+                    result[key] = props[key].slice();
+                    return result;
+                }, {} as any);
             return;
         }
         const opts: IProperty<T> = options || {} as any;
