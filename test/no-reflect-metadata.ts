@@ -34,5 +34,3 @@ describe("no reflect-metadata", () => {
         expect(result.date).to.instanceOf(Date);
     });
 });
-
-console.log(result);

@@ -1,25 +1,21 @@
-import { DEFAULT_PROPERTY_SOURCE, PROPERTIES_KEY } from "./constants";
+import { AFTER_KEY, DEFAULT_PROPERTY_SOURCE, PROPERTIES_KEY } from "./constants";
 import { IConverter, IMappingOptions, PropertyType } from "./interface";
 import { Property } from "./property";
 import { isNil, isValid, pushByOrder } from "./utils";
 
-const SYSTEM_TYPES: Array<PropertyType<any>> = [String, Boolean, Number, Date];
-
-const SYSTEM_CONVERTERS: Array<IConverter<any>> = [
-  (value) => isValid(value) ? String(value) : value,
-  (value) => isNil(value) ? undefined : Boolean(value),
-  (value) => isNil(value) ? undefined : Number(value),
-  (value) => isValid(value) ? new Date(value) : value,
-];
+const SYSTEM_CONVERTERS = new Map<PropertyType<any>, IConverter<any>>();
+SYSTEM_CONVERTERS.set(String, (value) => isValid(value) ? String(value) : value);
+SYSTEM_CONVERTERS.set(Boolean, (value) => isNil(value) ? undefined : Boolean(value));
+SYSTEM_CONVERTERS.set(Number, (value) => isNil(value) ? undefined : Number(value));
+SYSTEM_CONVERTERS.set(Date, (value) => isValid(value) ? new Date(value) : value);
 
 export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
   if (typeof type === "function") {
     if (type.prototype && PROPERTIES_KEY in type.prototype) {
       return (value: any, src: any, dest: T, options?: IMappingOptions) => map(value, type as any, options);
     } else {
-      const index = SYSTEM_TYPES.indexOf(type);
-      if (index >= 0) {
-        return SYSTEM_CONVERTERS[index];
+      if (SYSTEM_CONVERTERS.has(type)) {
+        return SYSTEM_CONVERTERS.get(type);
       } else {
         return type as any;
       }
@@ -62,24 +58,28 @@ function getProperties<T>(constuctor: any, options?: IMappingOptions) {
  */
 export function map<T extends new (...args: any[]) => any
 >(src: any, constuctor: T, options?: IMappingOptions): InstanceType<T> | null {
-  const instance = new constuctor();
-  if (src === undefined || src === null || typeof src !== "object") {
-    return null;
+  let instance: any = null;
+  if (!isNil(src) && typeof src === "object") {
+    instance = new constuctor();
+    const properties = getProperties(constuctor, options);
+    properties.forEach((property) => {
+      let result;
+      try {
+        const value = property.resolvePath(src);
+        result = property.convert(value, src, instance, options);
+      } catch (error) {
+        console.error(error);
+      }
+      if (isValid(result)) {
+        Object.assign(instance, { [property.name]: result });
+      } else if ("default" in property) {
+        Object.assign(instance, { [property.name]: property.default });
+      }
+    });
   }
-  const properties = getProperties(constuctor, options);
-  properties.forEach((property) => {
-    let result;
-    try {
-      const value = property.resolvePath(src);
-      result = property.convert(value, src, instance, options);
-    } catch (error) {
-      console.error(error);
-    }
-    if (isValid(result)) {
-      Object.assign(instance, { [property.name]: result });
-    } else if ("default" in property) {
-      Object.assign(instance, { [property.name]: property.default });
-    }
-  });
+  if (typeof constuctor.prototype[AFTER_KEY] === "function") {
+    const result = constuctor.prototype[AFTER_KEY].call(instance, src, options);
+    if (result !== undefined) { return result; }
+  }
   return instance;
 }

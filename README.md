@@ -5,12 +5,13 @@ Map and convert objects automatically in typescript.
 * Convert property types automatically;
 * Custom conversion;
 * Multiple data source mappings;
+* Map extensions;
 # Installation
 
 >`$ npm install --save auto-mapping`
 
 # Getting started
-To enable experimental support for decorators, you must enable the experimentalDecorators compiler option either on the command line or in your tsconfig.json:
+To enable experimental support for decorators, you must enable the experimentalDecorators compiler option either on the command line or in your *tsconfig.json*:
 ```
 {
   "compilerOptions": {
@@ -38,7 +39,7 @@ const data={
 const result = map(data, Person);
 console.log(result);
 ```
-output:
+:point_down: output:
 ```
 Person { name: 'fisher', gender: true, age: 18 }
 ```
@@ -65,7 +66,7 @@ const data={
 const result = map(data, Person);
 console.log(result);
 ```
-output:
+:point_down: output:
 ```
 Person { name: 'fisher', gender: true, age: 18 }
 ```
@@ -103,7 +104,7 @@ const data={
 const result = map(data, ArrayTest);
 console.log(result);
 ```
-output:
+:point_down: output:
 ```
 ArrayTest { numbers: [ 1, 2, 3 ] }
 ```
@@ -121,7 +122,7 @@ const data={
 const result = map(data, ArrayTest);
 console.log(result);
 ```
-output:
+:point_down: output:
 ```
 ArrayTest { numbers: [ 1 ] }
 ```
@@ -146,7 +147,7 @@ const result2 = map(dataSource2, Person, { source: 'other' });
 
 console.log(result1, result2);
 ```
-output:
+:point_down: output:
 ```
 Person { name: 'fisher' } Person { name: 'jack' }
 ```
@@ -197,7 +198,7 @@ const dataSource = {
 const result=map(dataSource, Person);
 console.log(result);
 ```
-output:
+:point_down: output:
 ```
 Person {
   age: 18,
@@ -206,7 +207,53 @@ Person {
   info: 'I am Lei Lee who come from NEW YORK.' 
 }
 ```
+# Extensions 
+:gift_heart: Sometimes you may need to do some extra finishing work, such as dynamically adding some properties, you can do this through the **after** symbol function.
+# [after](src:object, options?:object){...}
+```
+import "reflect-metadata";
+import { mapping, map, after } from "auto-mapping";
+
+class Person {
+    @mapping()
+    public gender: boolean;
+    @mapping()
+    public num: number = 1;
+    [after](src: any, options: any) {
+        // set value manually
+        this.gender = true;
+        // override original value
+        this.num = 100;
+        // dynamic assignment
+        Object.assign(this, { a: 1, b: 2 })
+    }
+}
+const result = map({ num: 10 }, Person);
+console.log(result, result instanceof Person);
+```
+:point_down: output:
+```
+Person { num: 100, gender: true, a: 1, b: 2 } true
+```
+> :warning: Note that when using the after function, if the map result is null, then any property that accesses ***this*** will throw an error.
+
+If the function returns a value that is not undefined, it will replace the map result value.
+```
+...
+[after](src: any, options: any) {
+    this.gender = true;
+    this.num = 100;
+    return Object.assign({}, this, { a: 1, b: 2 })
+}
+...
+```
+:point_down: output:
+```
+{ num: 100, gender: true, a: 1, b: 2 } false
+```
 # Update Logs
+## 1.0.13
+* add **after** symbol function to extend map function;
 ## 1.0.12
 * exclude dependent files during the packaging process.
 ## 1.0.9
