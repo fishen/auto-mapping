@@ -7,10 +7,13 @@ module.exports = {
     externals: [nodeExternals()],
     devtool: "source-map",
     module: {
-        rules: [{ test: /\.tsx?$/, loader: "ts-loader" }]
+        rules: [{ test: /\.ts(x?)$/, loader: "ts-loader" }]
     },
     resolve: {
         extensions: ['.ts']
+    },
+    optimization: {
+        minimize: false
     },
     output: {
         filename: 'index.js',

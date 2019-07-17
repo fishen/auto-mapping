@@ -52,7 +52,7 @@ declare module "auto-mapping/src/interface" {
 }
 declare module "auto-mapping/src/utils" {
     export function validAssign(source: any, dest: any): any;
-    export function pushByOrder<T>(array: T[], item: T, selector: (item: T) => any): any;
+    export function pushByOrder<T>(array: T[], item: T, selector: (item: T) => any): number;
     export function isNil(value: any): boolean;
     export function isValid(value: any): boolean;
 }
@@ -70,7 +70,7 @@ declare module "auto-mapping/src/converter" {
 declare module "auto-mapping/src/property" {
     import { IMappingOptions, IProperty, PropertyType } from "auto-mapping/src/interface";
     export class Property<T> implements IProperty<T> {
-        static from<T>(options: IProperty<T>, target: any, name: string): Property<{}>;
+        static from<T>(options: IProperty<T>, target: any, name: string): Property<unknown>;
         path: string;
         type: PropertyType<T>;
         source: string;
