@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { mapping, map } from '../src/index';
 import dataSource from './data-source';
 import { expect } from 'chai';

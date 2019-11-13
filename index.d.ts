@@ -1,10 +1,11 @@
 declare module "auto-mapping/src/constants" {
     export const CURRENT_PATH = ".";
     export const DEFAULT_PROPERTY_SEP = ".";
-    export const DEFAULT_PROPERTY_SOURCE = "default";
+    export const DEFAULT_SOURCE: any;
     export const PROPERTIES_KEY: any;
-    export const BEFORE_KEY: any;
-    export const AFTER_KEY: any;
+    export const MAPPING: any;
+    export const MAPPED: any;
+    export const DEFAULT_ORDER = 0;
 }
 declare module "auto-mapping/src/interface" {
     export type IConverter<T> = (value: any, src: any, dest: T, options?: IMappingOptions) => any;
@@ -20,18 +21,21 @@ declare module "auto-mapping/src/interface" {
          */
         domain?: string;
         /**
-         * The order for the property generated, default is 0;
+         * The order for the property generated
+         * @default 0
          */
         order?: number;
         /**
-         * The property path in the source object, such as 'a.b.c','a.b[0].c', default value is current property name.
+         * The property path in the source object, such as 'a.b.c','a.b[0].c',
+         * @default current property name.
          */
         path?: string;
         /**
-         * The source object name, default name is 'default',
+         * The source object name,
          * it is required if you want to map data from multiple data sources.
+         * @default DEFAULT_SOURCE
          */
-        source?: string;
+        source?: string | symbol;
         /**
          * The property decalre type, it is always necessary if the property type is an array.
          * such as String, [Number]
@@ -40,19 +44,24 @@ declare module "auto-mapping/src/interface" {
     }
     export interface IMappingOptions {
         /**
-         * The source object name, default is 'default', it is required if you want to map data from multiple data sources.
+         * Whether enable debug mode.
          */
-        source?: string;
+        debug?: boolean;
+        /**
+         * The source object name, it is required if you want to map data from multiple data sources.
+         * @default DEFAULT_SOURCE
+         */
+        source?: string | symbol;
         /**
          * Use the default mapping configuration when the current source configuration is missing.
-         * default is true.
+         * @default true
          */
         useDefaultSource?: boolean;
     }
 }
 declare module "auto-mapping/src/utils" {
     export function validAssign(source: any, dest: any): any;
-    export function pushByOrder<T>(array: T[], item: T, selector: (item: T) => any): number;
+    export function pushByOrder<T>(array: T[], item: T, selector: (item: T) => any): T[];
     export function isNil(value: any): boolean;
     export function isValid(value: any): boolean;
 }
@@ -71,14 +80,14 @@ declare module "auto-mapping/src/property" {
     import { IMappingOptions, IProperty, PropertyType } from "auto-mapping/src/interface";
     export class Property<T> implements IProperty<T> {
         static from<T>(options: IProperty<T>, target: any, name: string): Property<unknown>;
+        static getProperties<T>(prototype: object, options?: IMappingOptions): Array<Property<T>>;
         path: string;
         type: PropertyType<T>;
-        source: string;
         default: any;
         order: number;
         name: string;
-        resolvePath(src: any): any;
-        convert(value: any, src: any, dest: T, options?: IMappingOptions): any;
+        source: string | symbol;
+        convert(src: any, dest: T, options?: IMappingOptions): any;
     }
 }
 declare module "auto-mapping/src/decorator" {
@@ -92,5 +101,5 @@ declare module "auto-mapping/src/decorator" {
 declare module "auto-mapping" {
     export { mapping } from "auto-mapping/src/decorator";
     export { map } from "auto-mapping/src/converter";
-    export { AFTER_KEY as after } from "auto-mapping/src/constants";
+    export { MAPPED, MAPPING, MAPPED as after } from "auto-mapping/src/constants";
 }

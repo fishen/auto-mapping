@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { mapping, map } from "../src/index";
 import { expect } from "chai";
 import "mocha";

@@ -13,10 +13,11 @@ export function pushByOrder<T>(array: T[], item: T, selector: (item: T) => any) 
         const element = array[index];
         if (selector(item) < selector(element)) {
             array.splice(index, 0, item);
-            return;
+            return array;
         }
     }
-    return array.push(item);
+    array.push(item);
+    return array;
 }
 
 export function isNil(value: any) {

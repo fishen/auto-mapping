@@ -1,8 +1,8 @@
 import { resolve } from "secure-template";
-import { CURRENT_PATH, DEFAULT_PROPERTY_SEP, DEFAULT_PROPERTY_SOURCE } from "./constants";
+import { CURRENT_PATH, DEFAULT_ORDER, DEFAULT_PROPERTY_SEP, DEFAULT_SOURCE, PROPERTIES_KEY } from "./constants";
 import { getConverter } from "./converter";
 import { IMappingOptions, IProperty, PropertyType } from "./interface";
-import { isValid, validAssign } from "./utils";
+import { isValid, pushByOrder, validAssign } from "./utils";
 
 export class Property<T> implements IProperty<T> {
   public static from<T>(options: IProperty<T>, target: any, name: string) {
@@ -17,32 +17,36 @@ export class Property<T> implements IProperty<T> {
       }
     }
     property.path = property.path || name;
-    if (!property.type && typeof Reflect === "object" && "getMetadata" in Reflect) {
-      const designType = (Reflect as any).getMetadata("design:type", target, name);
+    if (!property.type) {
+      const designType = Reflect.getMetadata("design:type", target, name);
       property.type = designType === Array ? [] : designType;
     }
     return property;
   }
+
+  public static getProperties<T>(prototype: object, options?: IMappingOptions): Array<Property<T>> {
+    options = Object.assign({ source: DEFAULT_SOURCE }, options);
+    const { source, useDefaultSource } = options;
+    let properties: Array<Property<T>> = Reflect.getMetadata(PROPERTIES_KEY, prototype, source);
+    properties = properties ? properties.slice() : [];
+    if (source !== DEFAULT_SOURCE && useDefaultSource) {
+      const dfProperties: Array<Property<T>> = Property.getProperties(prototype);
+      dfProperties.filter((p) => !properties.some((x) => x.name === p.name))
+        .forEach((p) => pushByOrder(properties, p, (m) => m.order));
+    }
+    return properties;
+  }
   public path: string;
   public type: PropertyType<T>;
-  public source: string = DEFAULT_PROPERTY_SOURCE;
   public default: any;
-  public order: number = 0;
+  public order: number = DEFAULT_ORDER;
   public name: string;
+  public source: string | symbol = DEFAULT_SOURCE;
 
-  public resolvePath(src: any) {
-    if (this.path === CURRENT_PATH) {
-      return src;
-    } else {
-      return resolve(this.path, src);
-    }
-  }
-
-  public convert(value: any, src: any, dest: T, options?: IMappingOptions) {
+  public convert(src: any, dest: T, options?: IMappingOptions) {
+    let value = this.path === CURRENT_PATH ? src : resolve(this.path, src);
     if (Array.isArray(this.type)) {
-      if (!isValid(value)) {
-        return value;
-      }
+      if (!isValid(value)) { return value; }
       const convert = getConverter(this.type[0]);
       value = Array.isArray(value) ? value : [value];
       value = value.map((item: any) => convert(item, src, dest, options));

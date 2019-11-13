@@ -1,17 +1,18 @@
-import { AFTER_KEY, DEFAULT_PROPERTY_SOURCE, PROPERTIES_KEY } from "./constants";
+import { MAPPED, MAPPING, PROPERTIES_KEY } from "./constants";
 import { IConverter, IMappingOptions, PropertyType } from "./interface";
 import { Property } from "./property";
 import { isNil, isValid, pushByOrder } from "./utils";
 
-const SYSTEM_CONVERTERS = new Map<PropertyType<any>, IConverter<any>>();
-SYSTEM_CONVERTERS.set(String, (value) => isValid(value) ? String(value) : value);
-SYSTEM_CONVERTERS.set(Boolean, (value) => isNil(value) ? undefined : Boolean(value));
-SYSTEM_CONVERTERS.set(Number, (value) => isNil(value) ? undefined : Number(value));
-SYSTEM_CONVERTERS.set(Date, (value) => isValid(value) ? new Date(value) : value);
+const SYSTEM_CONVERTERS = new Map<PropertyType<any>, IConverter<any>>([
+  [String, (value) => isValid(value) ? String(value) : value],
+  [Boolean, (value) => isNil(value) ? undefined : Boolean(value)],
+  [Number, (value) => isNil(value) ? undefined : Number(value)],
+  [Date, (value) => isValid(value) ? new Date(value) : value],
+]);
 
 export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
   if (typeof type === "function") {
-    if (type.prototype && PROPERTIES_KEY in type.prototype) {
+    if (type.prototype && Reflect.hasMetadata(PROPERTIES_KEY, type.prototype)) {
       return (value: any, src: any, dest: T, options?: IMappingOptions) => map(value, type as any, options);
     } else {
       if (SYSTEM_CONVERTERS.has(type)) {
@@ -25,61 +26,37 @@ export function getConverter<T>(type?: PropertyType<T>): IConverter<T> {
   }
 }
 
-function getProperties<T>(constuctor: any, options?: IMappingOptions) {
-  const sourceName = options && options.source || DEFAULT_PROPERTY_SOURCE;
-  let properties: Record<string, Array<Property<T>>>;
-  properties = constuctor[PROPERTIES_KEY] || constuctor.prototype[PROPERTIES_KEY];
-  if (!properties || !(sourceName in properties)) {
-    return [];
-  }
-  let defaultProperties = properties[DEFAULT_PROPERTY_SOURCE];
-  if (sourceName !== DEFAULT_PROPERTY_SOURCE) {
-    const useDefaultSource = (options && options.useDefaultSource) !== false;
-    if (useDefaultSource && Array.isArray(defaultProperties)) {
-      defaultProperties = defaultProperties.slice();
-      properties[sourceName].forEach((p) => {
-        const index = defaultProperties.findIndex((m) => p.name === m.name);
-        if (index >= 0) {
-          defaultProperties.splice(index, 1);
-        }
-        pushByOrder(defaultProperties, p, (m) => m.order);
-      });
-    } else {
-      return properties[sourceName];
-    }
-  }
-  return defaultProperties;
-}
-
 /**
  * Map an object to an instance of the specified type.
  * @param src Data source object.
  * @param constuctor The type of instance, the constructor function of the class.
  * @param options Mapping options.
  */
-export function map<T extends new (...args: any[]) => any
->(src: any, constuctor: T, options?: IMappingOptions): InstanceType<T> | null {
+export function map<T extends new (...args: any[]) => any>(src: any, constuctor: T,
+                                                           options?: IMappingOptions): InstanceType<T> | null {
   let instance: any = null;
+  options = Object.assign({ useDefaultSource: true }, options);
+  if (typeof constuctor.prototype[MAPPING] === "function") {
+    const mappingResult = constuctor.prototype[MAPPING](src, options);
+    src = mappingResult === undefined ? src : mappingResult;
+  }
   if (!isNil(src) && typeof src === "object") {
     instance = new constuctor();
-    const properties = getProperties(constuctor, options);
+    const properties = Property.getProperties(constuctor.prototype, options);
     properties.forEach((property) => {
       let result;
       try {
-        const value = property.resolvePath(src);
-        result = property.convert(value, src, instance, options);
+        result = property.convert(src, instance, options);
       } catch (error) {
         console.error(error);
       }
-      if (isValid(result)) {
-        Object.assign(instance, { [property.name]: result });
-      } else if ("default" in property) {
-        Object.assign(instance, { [property.name]: property.default });
-      }
+      const { name, default: df } = property;
+      result = isValid(result) ? result : df !== undefined ? df : instance[name];
+      instance[name] = result;
     });
   }
-  if (typeof constuctor.prototype[AFTER_KEY] === "function") {
-    const result = constuctor.prototype[AFTER_KEY].call(instance, src, options);
+  if (typeof constuctor.prototype[MAPPED] === "function") {
+    const result = constuctor.prototype[MAPPED].call(instance, src, options);
     if (result !== undefined) { return result; }
   }
   return instance;

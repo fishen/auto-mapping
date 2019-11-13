@@ -1,4 +1,4 @@
-# auto-mapping
+# AUTO-MAPPING
 Map and convert objects automatically in typescript.
 # Features
 * Map object to an instance of a class by annotation;
@@ -11,6 +11,8 @@ Map and convert objects automatically in typescript.
 >`$ npm install --save auto-mapping`
 
 # Getting started
+Please import the **reflect-metadata** module in the project entry file before use.
+
 To enable experimental support for decorators, you must enable the experimentalDecorators compiler option either on the command line or in your *tsconfig.json*:
 ```
 {
@@ -126,16 +128,6 @@ console.log(result);
 ```
 ArrayTest { numbers: [ 1 ] }
 ```
-# Inheritance
-When using class inheritance, you should also add a **mapping** decorator for the class to prevent the derived class from polluting the mapping configuration information of the parent class.
-```
-import { mapping } from 'auto-mapping';
-
-@mapping
-class Base{}
-@mapping
-class SubClass extends Base{}
-```
 # Multiple Data Source
 The default data source mapping config named **default**, you can set multiple configurations by **source** option to map multiple data sources.
 ```
@@ -218,18 +210,42 @@ Person {
 }
 ```
 # Extensions 
-:gift_heart: Sometimes you may need to do some extra finishing work, such as dynamically adding some properties, you can do this through the **after** symbol function.
-# [after](src:object, options?:object){...}
+# [MAPPING](src:object, options?:object){...}
+Do some processing before mapping.
 ```
 import "reflect-metadata";
-import { mapping, map, after } from "auto-mapping";
+import { mapping, map, MAPPING } from "auto-mapping";
+
+class Person {
+    @mapping()
+    public num: number = 1;
+    @mapping()
+    public name: string;
+    [MAPPING](src: any, options: any) {
+        src.name = "fisher";
+    }
+}
+const result = map({ num: 10 }, Person);
+console.log(result, result instanceof Person);
+```
+:point_down: output:
+```
+Person { num: 100, name: 'fisher' } true
+```
+If the *MAPPING* function returns a value that is not undefined, it will be passed to the *map* method as a source object.
+
+# [MAPPED](src:object, options?:object){...}
+Sometimes you may need to do some extra finishing work, such as dynamically adding some properties, you can do this through the **MAPPED** symbol function.
+```
+import "reflect-metadata";
+import { mapping, map, MAPPED } from "auto-mapping";
 
 class Person {
     @mapping()
     public gender: boolean;
     @mapping()
     public num: number = 1;
-    [after](src: any, options: any) {
+    [MAPPED](src: any, options: any) {
         // set value manually
         this.gender = true;
         // override original value
@@ -245,12 +261,12 @@ console.log(result, result instanceof Person);
 ```
 Person { num: 100, gender: true, a: 1, b: 2 } true
 ```
-> :warning: Note that when using the after function, if the map result is null, then any property that accesses ***this*** will throw an error.
+> :warning: Note that when using the *MAPPED* function, if the map result is null, then any property that accesses ***this*** will throw an error.
 
 If the function returns a value that is not undefined, it will replace the map result value.
 ```
 ...
-[after](src: any, options: any) {
+[MAPPED](src: any, options: any) {
     this.gender = true;
     this.num = 100;
     return Object.assign({}, this, { a: 1, b: 2 })
@@ -262,28 +278,32 @@ If the function returns a value that is not undefined, it will replace the map r
 { num: 100, gender: true, a: 1, b: 2 } false
 ```
 # Update Logs
+## 1.1.0
+* refacted module using *reflect-metadata*;
+* added two extension methods *MAPPING* and *MAPPED*;
+* maked the *after* method as a deprecated method and replaced with the *MAPPED* method.
 ## 1.0.15
-* fix a problem which derived class pollution parent class's mapping configurations.
+* fixed a problem which derived class pollution parent class's mapping configurations.
 ## 1.0.14
-* add **after** symbol function to extend map function;
+* added **after** symbol function to extend map function;
 ## 1.0.12
 * exclude dependent files during the packaging process.
 ## 1.0.9
 * remove separator option from Property and uniform use dot.
-* add secure-template module.
+* added secure-template module.
 ## 1.0.7
-* remove source code and reduce module size.
+* removed source code and reduce module size.
 * and tslint.
 ## 1.0.6
-* remove reflect-metadata by default;
+* removed reflect-metadata by default;
 ## 1.0.4
-* fix the problem that the bool type and number type default values cannot take effect;
-* add the mocha test framework;
-* remove sourcemap in production env;
+* fixed the problem that the bool type and number type default values cannot take effect;
+* added the mocha test framework;
+* removed sourcemap in production env;
 ## 1.0.3
-* add **domain** option into *mapping* options which can set parent path;
+* added **domain** option into *mapping* options which can set parent path;
 * fixed an issue where the default value could not be set correctly;
 ## 1.0.2
-* add **useDefaultSource** option to share configuration with default source;
+* added **useDefaultSource** option to share configuration with default source;
 * surport current path by use **dot('.')**;
-* add .npmignore file;
+* added .npmignore file;

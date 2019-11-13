@@ -4,13 +4,13 @@ import dataSource from "./data-source";
 import { expect } from "chai";
 import "mocha";
 
-@mapping()
 class Base {
     @mapping()
     public name: string;
+    @mapping()
+    public date: string;
 }
 
-@mapping()
 class Person extends Base {
     @mapping({ path: "address.city" })
     public name: string;
@@ -23,6 +23,9 @@ const result1 = map(dataSource, Base);
 describe("inherit", () => {
     it("should be equal to ovrride config value.", () => {
         expect(result.name).to.equal(dataSource.address.city);
+    });
+    it("should be get parent property.", () => {
+        expect(result.date).to.equal(dataSource.date);
     });
     it("should be equal to own config value.", () => {
         expect(result1.name).to.equal(dataSource.name);

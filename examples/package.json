@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "auto-mapping": "file:../auto-mapping-1.0.12.tgz"
+    "auto-mapping": "file:../auto-mapping-1.1.0.tgz"
   },
   "devDependencies": {
     "ts-node": "^8.0.3",

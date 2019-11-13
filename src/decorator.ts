@@ -1,4 +1,4 @@
-import { PROPERTIES_KEY } from "./constants";
+import { DEFAULT_SOURCE, PROPERTIES_KEY } from "./constants";
 import { IConverter, IProperty } from "./interface";
 import { Property } from "./property";
 import { pushByOrder } from "./utils";
@@ -9,20 +9,14 @@ import { pushByOrder } from "./utils";
  */
 export function mapping<T = any>(options?: IProperty<T> | IConverter<T>) {
     return function(target: any, name?: string) {
-        if (typeof target === "function" && PROPERTIES_KEY in target.prototype) {
-            const props = target.prototype[PROPERTIES_KEY];
-            target[PROPERTIES_KEY] = Object.keys(props)
-                .reduce((result, key) => {
-                    result[key] = props[key].slice();
-                    return result;
-                }, {} as any);
-            return;
-        }
         const opts: IProperty<T> = options || {} as any;
         const property = Property.from(opts, target, name);
-        const properties = target[PROPERTIES_KEY] || {};
-        properties[property.source] = properties[property.source] || [];
-        pushByOrder(properties[property.source], property, (item) => item.order);
-        target[PROPERTIES_KEY] = properties;
+        const properties = Property.getProperties(target, { source: property.source });
+        const index = properties.findIndex((p) => p.name === property.name);
+        // tslint:disable-next-line
+        ~index && properties.splice(index, 1);
+        pushByOrder(properties, property, (item) => item.order);
+        Reflect.defineMetadata(PROPERTIES_KEY, true, target);
+        Reflect.defineMetadata(PROPERTIES_KEY, properties, target, property.source);
     };
 }

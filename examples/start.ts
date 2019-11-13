@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { mapping, map } from 'auto-mapping';
 
 class Person {
@@ -8,7 +9,7 @@ class Person {
     @mapping({ path: 'others.number' })
     age: number
 }
-const data={
+const data = {
     name: 'fisher',
     gender: 1,
     others: { number: '18' },

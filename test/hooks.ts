@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import { mapping, map, after } from "../src/index";
+import { mapping, map, MAPPING, MAPPED } from "../src/index";
 import { expect } from "chai";
 import "mocha";
 
 class Base {
-    [after](src: any, options: any) {
+    [MAPPED](src: any, options: any) {
         console.log(1);
     }
 }
@@ -14,7 +14,12 @@ class Person extends Base {
     public gender: boolean;
     @mapping()
     public num: number = 1;
-    [after](src: any, options: any) {
+    @mapping()
+    public name: string;
+    [MAPPING](src: any, options: any) {
+        src.name = "fisher";
+    }
+    [MAPPED](src: any, options: any) {
         console.log(2);
         //set value manually.
         this.gender = true;
@@ -26,7 +31,10 @@ class Person extends Base {
 }
 const result = map({ num: 10 }, Person);
 
-describe("after extension", () => {
+describe("hooks", () => {
+    it("should be able to get the name property correctly.", () => {
+        expect(result.name).to.be.eq('fisher');
+    });
     it("should not be undefined when rewrite no exists value.", () => {
         expect(result.gender).to.be.not.undefined;
     });

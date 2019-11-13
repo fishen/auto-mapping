@@ -13,18 +13,21 @@ export interface IProperty<T = any> {
    */
   domain?: string;
   /**
-   * The order for the property generated, default is 0;
+   * The order for the property generated
+   * @default 0
    */
   order?: number;
   /**
-   * The property path in the source object, such as 'a.b.c','a.b[0].c', default value is current property name.
+   * The property path in the source object, such as 'a.b.c','a.b[0].c',
+   * @default current property name.
    */
   path?: string;
   /**
-   * The source object name, default name is 'default',
+   * The source object name,
    * it is required if you want to map data from multiple data sources.
+   * @default DEFAULT_SOURCE
    */
-  source?: string;
+  source?: string | symbol;
   /**
    * The property decalre type, it is always necessary if the property type is an array.
    * such as String, [Number]
@@ -34,12 +37,17 @@ export interface IProperty<T = any> {
 
 export interface IMappingOptions {
   /**
-   * The source object name, default is 'default', it is required if you want to map data from multiple data sources.
+   * Whether enable debug mode.
    */
-  source?: string;
+  debug?: boolean;
+  /**
+   * The source object name, it is required if you want to map data from multiple data sources.
+   * @default DEFAULT_SOURCE
+   */
+  source?: string | symbol;
   /**
    * Use the default mapping configuration when the current source configuration is missing.
-   * default is true.
+   * @default true
    */
   useDefaultSource?: boolean;
 }
