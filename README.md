@@ -281,7 +281,7 @@ If the function returns a value that is not undefined, it will replace the map r
 ## 1.1.0
 * refacted module using *reflect-metadata*;
 * added two extension methods *MAPPING* and *MAPPED*;
-* maked the *after* method as a deprecated method and replaced with the *MAPPED* method.
+* marked the *after* method as a deprecated method and replaced with the *MAPPED* method.
 ## 1.0.15
 * fixed a problem which derived class pollution parent class's mapping configurations.
 ## 1.0.14
