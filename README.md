@@ -23,6 +23,7 @@ To enable experimental support for decorators, you must enable the experimentalD
 }
 ```
 ```
+import 'reflect-metadata';
 import { mapping, map } from 'auto-mapping';
 
 class Person {
