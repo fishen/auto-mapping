@@ -6,6 +6,8 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "noImplicitAny": true,
+    "declaration": true,
+    "declarationDir": "dts",
     "module": "commonjs",
     "target": "es5",
     "allowJs": false,
@@ -20,7 +22,8 @@
     ]
   },
   "include": [
-    "**/*.ts",
+    "src/**/*.ts",
+    "test/**/*.ts"
   ],
   "exclude": [
     "dist",

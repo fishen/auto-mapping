@@ -1,3 +1,4 @@
 export { mapping } from "./decorator";
 export { map } from "./converter";
-export { MAPPED, MAPPING, MAPPED as after } from "./constants";
+export { DEFAULT_SOURCE, MAPPED, MAPPING, MAPPED as after } from "./constants";
+export { Converter, PropertyType } from "./interface";

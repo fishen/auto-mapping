@@ -1,6 +1,6 @@
-export type IConverter<T> = (value: any, src: any, dest: T, options?: IMappingOptions) => any;
+export type Converter<T = any> = (value: any, src?: any, dest?: T, options?: IMappingOptions) => any;
 
-export type PropertyType<T> = (new (...args: any[]) => T) | IConverter<T>;
+export type PropertyType<T = any> = new (...args: any[]) => T;
 
 export interface IProperty<T = any> {
   /**
@@ -32,7 +32,7 @@ export interface IProperty<T = any> {
    * The property decalre type, it is always necessary if the property type is an array.
    * such as String, [Number]
    */
-  type?: PropertyType<T> | [PropertyType<T>];
+  type?: PropertyType<T> | Converter<T> | [PropertyType<T>] | [Converter<T>];
 }
 
 export interface IMappingOptions {
@@ -50,4 +50,17 @@ export interface IMappingOptions {
    * @default true
    */
   useDefaultSource?: boolean;
+  /**
+   * Whether to allow the value to be set to null
+   */
+  nullable?: boolean;
+  /**
+   * Whether to allow the value to be set to NaN
+   */
+  allowNaN?: boolean;
+  /**
+   * Custom conversion function, only valid during the current mapping.
+   * If you want to set a global conversion function, use the 'map.setDefaultConverter' function.
+   */
+  converters?: Map<PropertyType, Converter>;
 }

@@ -107,144 +107,33 @@ exports.DEFAULT_ORDER = 0;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-function validAssign(source, dest) {
-    source = source || {};
-    for (var key in dest) {
-        if (dest[key] !== undefined) {
-            source[key] = dest[key];
-        }
-    }
-    return source;
-}
-exports.validAssign = validAssign;
-function pushByOrder(array, item, selector) {
-    for (var index = 0, length_1 = array.length; index < length_1; index++) {
-        var element = array[index];
-        if (selector(item) < selector(element)) {
-            array.splice(index, 0, item);
-            return array;
-        }
-    }
-    array.push(item);
-    return array;
-}
-exports.pushByOrder = pushByOrder;
-function isNil(value) {
-    return value === null || value === undefined;
-}
-exports.isNil = isNil;
-function isValid(value) {
-    if (isNil(value)) {
-        return false;
-    }
-    else if (value !== value && isNaN(value)) {
-        return false;
-    }
-    else if (value instanceof Date && isNaN(value.valueOf())) {
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-exports.isValid = isValid;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var secure_template_1 = __webpack_require__(6);
 var constants_1 = __webpack_require__(0);
-var converter_1 = __webpack_require__(3);
-var utils_1 = __webpack_require__(1);
-var Property = /** @class */ (function () {
-    function Property() {
-        this.order = constants_1.DEFAULT_ORDER;
-        this.source = constants_1.DEFAULT_SOURCE;
-    }
-    Property.from = function (options, target, name) {
-        options = typeof options === "function" ? { type: options } : options;
-        var property = new Property();
-        property.name = name;
-        utils_1.validAssign(property, options);
-        if (options.domain) {
-            if (!options.path) {
-                // The option domain will be ignored when used with path.
-                property.path = [options.domain, name].join(constants_1.DEFAULT_PROPERTY_SEP);
-            }
-        }
-        property.path = property.path || name;
-        if (!property.type) {
-            var designType = Reflect.getMetadata("design:type", target, name);
-            property.type = designType === Array ? [] : designType;
-        }
-        return property;
-    };
-    Property.getProperties = function (prototype, options) {
-        options = Object.assign({ source: constants_1.DEFAULT_SOURCE }, options);
-        var source = options.source, useDefaultSource = options.useDefaultSource;
-        var properties = Reflect.getMetadata(constants_1.PROPERTIES_KEY, prototype, source);
-        properties = properties ? properties.slice() : [];
-        if (source !== constants_1.DEFAULT_SOURCE && useDefaultSource) {
-            var dfProperties = Property.getProperties(prototype);
-            dfProperties.filter(function (p) { return !properties.some(function (x) { return x.name === p.name; }); })
-                .forEach(function (p) { return utils_1.pushByOrder(properties, p, function (m) { return m.order; }); });
-        }
-        return properties;
-    };
-    Property.prototype.convert = function (src, dest, options) {
-        var value = this.path === constants_1.CURRENT_PATH ? src : secure_template_1.resolve(this.path, src);
-        if (Array.isArray(this.type)) {
-            if (!utils_1.isValid(value)) {
-                return value;
-            }
-            var convert_1 = converter_1.getConverter(this.type[0]);
-            value = Array.isArray(value) ? value : [value];
-            value = value.map(function (item) { return convert_1(item, src, dest, options); });
-        }
-        else {
-            var convert = converter_1.getConverter(this.type);
-            value = convert(value, src, dest, options);
-        }
-        return value;
-    };
-    return Property;
-}());
-exports.Property = Property;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var constants_1 = __webpack_require__(0);
-var property_1 = __webpack_require__(2);
-var utils_1 = __webpack_require__(1);
-var SYSTEM_CONVERTERS = new Map([
-    [String, function (value) { return utils_1.isValid(value) ? String(value) : value; }],
-    [Boolean, function (value) { return utils_1.isNil(value) ? undefined : Boolean(value); }],
-    [Number, function (value) { return utils_1.isNil(value) ? undefined : Number(value); }],
-    [Date, function (value) { return utils_1.isValid(value) ? new Date(value) : value; }],
+var property_1 = __webpack_require__(3);
+var utils_1 = __webpack_require__(2);
+/**
+ * Global conversion function container
+ */
+exports.CONVERTERS = new Map([
+    [String, function (value, src, dest, options) { return utils_1.isValid(value, options) ? String(value) : value; }],
+    [Boolean, function (value, src, dest, options) { return utils_1.isValid(value, options) ? Boolean(value) : value; }],
+    [Number, function (value, src, dest, options) { return utils_1.isValid(value, options) ? Number(value) : value; }],
+    [Date, function (value, src, dest, options) { return utils_1.isValid(value, options) ? new Date(value) : value; }],
 ]);
-function getConverter(type) {
+/**
+ * Get the conversion function of the specified type.
+ * @param type conversion type
+ * @param options mapping options
+ */
+function getConverter(type, options) {
     if (typeof type === "function") {
-        if (type.prototype && Reflect.hasMetadata(constants_1.PROPERTIES_KEY, type.prototype)) {
-            return function (value, src, dest, options) { return map(value, type, options); };
+        if (options && options.converters instanceof Map && options.converters.has(type)) {
+            return options.converters.get(type);
+        }
+        else if (exports.CONVERTERS.has(type)) {
+            return exports.CONVERTERS.get(type);
         }
         else {
-            if (SYSTEM_CONVERTERS.has(type)) {
-                return SYSTEM_CONVERTERS.get(type);
-            }
-            else {
-                return type;
-            }
+            return type;
         }
     }
     else {
@@ -277,7 +166,7 @@ function map(src, constuctor, options) {
                 console.error(error);
             }
             var name = property.name, df = property.default;
-            result = utils_1.isValid(result) ? result : df !== undefined ? df : instance[name];
+            result = utils_1.isValid(result, options) ? result : df !== undefined ? df : instance[name];
             instance[name] = result;
         });
     }
@@ -290,6 +179,153 @@ function map(src, constuctor, options) {
     return instance;
 }
 exports.map = map;
+/**
+ * Set the global conversion function for the specified type
+ * @param type The type of value to convert
+ * @param converter The conversion function
+ * @example map.setDefaultConverter(String,(value)=>value!==null&&value!==undefined?value:'')
+ */
+map.setDefaultConverter = function (type, converter) {
+    if (typeof type !== "function") {
+        throw new TypeError("The 'type' parameter must be a function type");
+    }
+    if (typeof converter !== "function") {
+        throw new TypeError("The 'type' parameter must be a function type");
+    }
+    exports.CONVERTERS.set(type, converter);
+};
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function validAssign(source, dest) {
+    source = source || {};
+    for (var key in dest) {
+        if (dest[key] !== undefined) {
+            source[key] = dest[key];
+        }
+    }
+    return source;
+}
+exports.validAssign = validAssign;
+function pushByOrder(array, item, selector) {
+    for (var index = 0, length_1 = array.length; index < length_1; index++) {
+        var element = array[index];
+        if (selector(item) < selector(element)) {
+            array.splice(index, 0, item);
+            return array;
+        }
+    }
+    array.push(item);
+    return array;
+}
+exports.pushByOrder = pushByOrder;
+function isNil(value) {
+    return value === null || value === undefined;
+}
+exports.isNil = isNil;
+function isValid(value, options) {
+    var _a = Object.assign({}, options), nullable = _a.nullable, allowNaN = _a.allowNaN;
+    if (value === undefined) {
+        return false;
+    }
+    else if (value === null) {
+        return nullable;
+    }
+    else if (value !== value && isNaN(value)) {
+        return !!allowNaN;
+    }
+    else if (value instanceof Date && isNaN(value.valueOf())) {
+        return !!allowNaN;
+    }
+    else {
+        return true;
+    }
+}
+exports.isValid = isValid;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var secure_template_1 = __webpack_require__(6);
+var constants_1 = __webpack_require__(0);
+var converter_1 = __webpack_require__(1);
+var utils_1 = __webpack_require__(2);
+var Property = /** @class */ (function () {
+    function Property() {
+        this.order = constants_1.DEFAULT_ORDER;
+        this.source = constants_1.DEFAULT_SOURCE;
+    }
+    Property.from = function (options, target, name) {
+        options = typeof options === "function" ? { type: options } : (options || {});
+        var property = new Property();
+        property.name = name;
+        utils_1.validAssign(property, options);
+        if (options.domain) {
+            if (!options.path) {
+                // The option domain will be ignored when used with path.
+                property.path = [options.domain, name].join(constants_1.DEFAULT_PROPERTY_SEP);
+            }
+        }
+        property.path = property.path || name;
+        if (!property.type) {
+            var designType = Reflect.getMetadata("design:type", target, name);
+            property.type = designType === Array ? [] : designType;
+        }
+        return property;
+    };
+    /**
+     * Get the properties bound on the prototype object
+     * @param prototype prototype object
+     * @param options mapping options
+     */
+    Property.getProperties = function (prototype, options) {
+        options = Object.assign({ source: constants_1.DEFAULT_SOURCE }, options);
+        var source = options.source, useDefaultSource = options.useDefaultSource;
+        var properties = Reflect.getMetadata(constants_1.PROPERTIES_KEY, prototype, source);
+        properties = properties ? properties.slice() : [];
+        if (source !== constants_1.DEFAULT_SOURCE && useDefaultSource) {
+            var dfProperties = Property.getProperties(prototype);
+            dfProperties.filter(function (p) { return !properties.some(function (x) { return x.name === p.name; }); })
+                .forEach(function (p) { return utils_1.pushByOrder(properties, p, function (m) { return m.order; }); });
+        }
+        return properties;
+    };
+    /**
+     * The conversion function
+     * @param src source value
+     * @param dest dest value
+     * @param options mapping options
+     */
+    Property.prototype.convert = function (src, dest, options) {
+        var value = this.path === constants_1.CURRENT_PATH ? src : secure_template_1.resolve(this.path, src);
+        if (Array.isArray(this.type)) {
+            if (!utils_1.isValid(value, options)) {
+                return value;
+            }
+            var convert_1 = converter_1.getConverter(this.type[0], options);
+            value = Array.isArray(value) ? value : [value];
+            value = value.map(function (item) { return convert_1(item, src, dest, options); });
+        }
+        else {
+            var convert = converter_1.getConverter(this.type, options);
+            value = convert(value, src, dest, options);
+        }
+        return value;
+    };
+    return Property;
+}());
+exports.Property = Property;
 
 
 /***/ }),
@@ -301,9 +337,10 @@ exports.map = map;
 Object.defineProperty(exports, "__esModule", { value: true });
 var decorator_1 = __webpack_require__(5);
 exports.mapping = decorator_1.mapping;
-var converter_1 = __webpack_require__(3);
+var converter_1 = __webpack_require__(1);
 exports.map = converter_1.map;
 var constants_1 = __webpack_require__(0);
+exports.DEFAULT_SOURCE = constants_1.DEFAULT_SOURCE;
 exports.MAPPED = constants_1.MAPPED;
 exports.MAPPING = constants_1.MAPPING;
 exports.after = constants_1.MAPPED;
@@ -317,22 +354,25 @@ exports.after = constants_1.MAPPED;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var constants_1 = __webpack_require__(0);
-var property_1 = __webpack_require__(2);
-var utils_1 = __webpack_require__(1);
+var converter_1 = __webpack_require__(1);
+var property_1 = __webpack_require__(3);
+var utils_1 = __webpack_require__(2);
 /**
  * The required annotations for object mapping which can only be used on instance properties.
  * @param options mapping options
  */
 function mapping(options) {
     return function (target, name) {
-        var opts = options || {};
-        var property = property_1.Property.from(opts, target, name);
+        var property = property_1.Property.from(options, target, name);
         var properties = property_1.Property.getProperties(target, { source: property.source });
         var index = properties.findIndex(function (p) { return p.name === property.name; });
         // tslint:disable-next-line
         ~index && properties.splice(index, 1);
         utils_1.pushByOrder(properties, property, function (item) { return item.order; });
-        Reflect.defineMetadata(constants_1.PROPERTIES_KEY, true, target);
+        var ctor = target.constructor;
+        if (!converter_1.CONVERTERS.has(ctor)) {
+            converter_1.CONVERTERS.set(ctor, function (value, src, dest, opts) { return converter_1.map(value, ctor, opts); });
+        }
         Reflect.defineMetadata(constants_1.PROPERTIES_KEY, properties, target, property.source);
     };
 }

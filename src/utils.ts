@@ -24,13 +24,16 @@ export function isNil(value: any) {
     return value === null || value === undefined;
 }
 
-export function isValid(value: any) {
-    if (isNil(value)) {
+export function isValid(value: any, options?: { nullable?: boolean, allowNaN?: boolean }) {
+    const { nullable, allowNaN } = Object.assign({}, options);
+    if (value === undefined) {
         return false;
+    } else if (value === null) {
+        return nullable;
     } else if (value !== value && isNaN(value)) {
-        return false;
+        return !!allowNaN;
     } else if (value instanceof Date && isNaN(value.valueOf())) {
-        return false;
+        return !!allowNaN;
     } else {
         return true;
     }
