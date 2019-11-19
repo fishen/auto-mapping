@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -256,10 +256,14 @@ exports.isValid = isValid;
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var secure_template_1 = __webpack_require__(6);
+var secure_template_1 = __webpack_require__(7);
 var constants_1 = __webpack_require__(0);
 var converter_1 = __webpack_require__(1);
+var reflect_1 = __importDefault(__webpack_require__(4));
 var utils_1 = __webpack_require__(2);
 var Property = /** @class */ (function () {
     function Property() {
@@ -279,7 +283,7 @@ var Property = /** @class */ (function () {
         }
         property.path = property.path || name;
         if (!property.type) {
-            var designType = Reflect.getMetadata("design:type", target, name);
+            var designType = reflect_1.default.getMetadata("design:type", target, name);
             property.type = designType === Array ? [] : designType;
         }
         return property;
@@ -292,7 +296,7 @@ var Property = /** @class */ (function () {
     Property.getProperties = function (prototype, options) {
         options = Object.assign({ source: constants_1.DEFAULT_SOURCE }, options);
         var source = options.source, useDefaultSource = options.useDefaultSource;
-        var properties = Reflect.getMetadata(constants_1.PROPERTIES_KEY, prototype, source);
+        var properties = reflect_1.default.getMetadata(constants_1.PROPERTIES_KEY, prototype, source);
         properties = properties ? properties.slice() : [];
         if (source !== constants_1.DEFAULT_SOURCE && useDefaultSource) {
             var dfProperties = Property.getProperties(prototype);
@@ -333,9 +337,36 @@ exports.Property = Property;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+Object.defineProperty(exports, "__esModule", { value: true });
+__webpack_require__(9);
+function isValid(obj) {
+    return typeof obj === "object" && typeof obj.getMetadata === "function";
+}
+var reflect = (function () {
+    if (isValid(Reflect)) {
+        return Reflect;
+    }
+    else if (isValid(global.Reflect)) {
+        return global.Reflect;
+    }
+    else if (isValid(global.global && global.global.Reflect)) {
+        return global.global.Reflect;
+    }
+    return {};
+}());
+exports.default = reflect;
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8)))
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var decorator_1 = __webpack_require__(5);
+var decorator_1 = __webpack_require__(6);
 exports.mapping = decorator_1.mapping;
 var converter_1 = __webpack_require__(1);
 exports.map = converter_1.map;
@@ -347,15 +378,19 @@ exports.after = constants_1.MAPPED;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var constants_1 = __webpack_require__(0);
 var converter_1 = __webpack_require__(1);
 var property_1 = __webpack_require__(3);
+var reflect_1 = __importDefault(__webpack_require__(4));
 var utils_1 = __webpack_require__(2);
 /**
  * The required annotations for object mapping which can only be used on instance properties.
@@ -373,17 +408,49 @@ function mapping(options) {
         if (!converter_1.CONVERTERS.has(ctor)) {
             converter_1.CONVERTERS.set(ctor, function (value, src, dest, opts) { return converter_1.map(value, ctor, opts); });
         }
-        Reflect.defineMetadata(constants_1.PROPERTIES_KEY, properties, target, property.source);
+        reflect_1.default.defineMetadata(constants_1.PROPERTIES_KEY, properties, target, property.source);
     };
 }
 exports.mapping = mapping;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = require("secure-template");
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || new Function("return this")();
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+module.exports = require("reflect-metadata");
 
 /***/ })
 /******/ ])));

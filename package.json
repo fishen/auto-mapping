@@ -1,6 +1,6 @@
 {
   "name": "auto-mapping",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "map and convert object in typescript",
   "main": "index.js",
   "directories": {

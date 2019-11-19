@@ -2,6 +2,7 @@ import { PROPERTIES_KEY } from "./constants";
 import { CONVERTERS, map } from "./converter";
 import { Converter, IProperty } from "./interface";
 import { Property } from "./property";
+import Reflect from "./reflect";
 import { pushByOrder } from "./utils";
 
 /**

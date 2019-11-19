@@ -2,6 +2,7 @@ import { resolve } from "secure-template";
 import { CURRENT_PATH, DEFAULT_ORDER, DEFAULT_PROPERTY_SEP, DEFAULT_SOURCE, PROPERTIES_KEY } from "./constants";
 import { getConverter } from "./converter";
 import { Converter, IMappingOptions, IProperty, PropertyType } from "./interface";
+import Reflect from "./reflect";
 import { isValid, pushByOrder, validAssign } from "./utils";
 
 export class Property<T> implements IProperty<T> {

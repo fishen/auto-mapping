@@ -305,6 +305,8 @@ If the function returns a value that is not undefined, it will replace the map r
 { num: 100, gender: true, a: 1, b: 2 } false
 ```
 # Update Logs
+## 1.2.1
+* compatible for mini-programs.
 ## 1.2.0
 * added mapping options *nullable*、*allowNaN*、*converters*;
 * added new api *map.setDefaultConverter* to config global default type conversion;
