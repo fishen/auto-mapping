@@ -1,4 +1,4 @@
-export type Converter<T = any> = (value: any, src?: any, dest?: T, options?: IMappingOptions) => any;
+export type Converter<T = any> = (value: any, src: any, dest: T, options: IMappingOptions) => any;
 
 export type PropertyType<T = any> = new (...args: any[]) => T;
 
