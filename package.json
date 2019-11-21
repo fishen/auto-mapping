@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --require ts-node/register -T test/*.ts",
+    "test": "mocha --require ts-node/register test/**/*.{ts,tsx}",
     "ts": "ts-node",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "fix": "tslint -c tslint.json 'src/**/*.ts' --fix",
