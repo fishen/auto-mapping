@@ -39,7 +39,7 @@ const data={
     gender: 1,
     others: { number: '18' },
 };
-console.log(map(data, Person));
+console.info(map(data, Person));
 ```
 ```sh
 # output
@@ -65,7 +65,7 @@ const data={
     gender: 1,
     others: { number: '18' },
 };
-console.log(map(data, Person));
+console.info(map(data, Person));
 ```
 ```sh
 # output
@@ -113,7 +113,7 @@ class Person {
     public num: number;
 }
 
-console.log(map({}, Person));
+console.info(map({}, Person));
 ```
 ```sh
 # output
@@ -133,7 +133,7 @@ const data={
     numbers:['1','2','3']
 };
 const result = map(data, ArrayTest);
-console.log(result);
+console.info(result);
 ```
 ```sh
 # output
@@ -150,7 +150,7 @@ class ArrayTest {
 const data={
     number: '1'
 };
-console.log(map(data, ArrayTest));
+console.info(map(data, ArrayTest));
 ```
 ```sh
 # output
@@ -175,7 +175,7 @@ const dataSource2 = {
 const result1 = map(dataSource1, Person);
 const result2 = map(dataSource2, Person, { source: 'other' });
 
-console.log(result1, result2);
+console.info(result1, result2);
 ```
 ```sh
 # output
@@ -225,7 +225,7 @@ const dataSource = {
         cityName: '    NEW YORK    '
     },
 };
-console.log(map(dataSource, Person));
+console.info(map(dataSource, Person));
 ```
 ```sh
 # ouput
@@ -253,7 +253,7 @@ class Person {
     }
 }
 const result = map({ num: 10 }, Person);
-console.log(result, result instanceof Person);
+console.info(result, result instanceof Person);
 ```
 ```sh
 # output
@@ -282,7 +282,7 @@ class Person {
     }
 }
 const result = map({ num: 10 }, Person);
-console.log(result, result instanceof Person);
+console.info(result, result instanceof Person);
 ```
 ```sh
 # output

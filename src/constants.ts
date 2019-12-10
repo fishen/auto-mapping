@@ -1,3 +1,6 @@
+export const DESIGN_PARAM_TYPES = "design:paramtypes";
+export const DESIGN_TYPE = "design:type";
+export const DESIGN_RETURN_TYPE = "design:returntype";
 export const CURRENT_PATH = ".";
 export const DEFAULT_PROPERTY_SEP = ".";
 export const DEFAULT_SOURCE = Symbol("DEFAULT_PROPERTY_SOURCE");

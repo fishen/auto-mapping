@@ -1,6 +1,6 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const DtsBundleWebpack = require('dts-bundle-webpack');
+const { plugin: BundleDTSPlugin } = require('bundle-dts');
 
 module.exports = {
     mode: 'production',
@@ -11,11 +11,7 @@ module.exports = {
         rules: [{ test: /\.ts(x?)$/, loader: "ts-loader", }]
     },
     plugins: [
-        new DtsBundleWebpack({
-            name: 'auto-mapping',
-            main: 'dts/src/index.d.ts',
-            out: "~/index.d.ts",
-        })
+        new BundleDTSPlugin(),
     ],
     resolve: {
         extensions: ['.ts']

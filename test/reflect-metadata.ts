@@ -4,13 +4,11 @@ import dataSource from "./data-source";
 import { expect } from "chai";
 import "mocha";
 
-@mapping()
 class Base {
     @mapping()
     public name: string;
 }
 
-@mapping()
 class Person extends Base {
     @mapping()
     public gender: string;

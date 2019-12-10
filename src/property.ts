@@ -1,5 +1,5 @@
 import { resolve } from "secure-template";
-import { CURRENT_PATH, DEFAULT_ORDER, DEFAULT_PROPERTY_SEP, DEFAULT_SOURCE, PROPERTIES_KEY } from "./constants";
+import { CURRENT_PATH, DEFAULT_ORDER, DEFAULT_PROPERTY_SEP, DEFAULT_SOURCE, DESIGN_TYPE, PROPERTIES_KEY } from "./constants";
 import { getConverter } from "./converter";
 import { Converter, IMappingOptions, IProperty, PropertyType } from "./interface";
 import Reflect from "./reflect";
@@ -20,7 +20,7 @@ export class Property<T> implements IProperty<T> {
     }
     property.path = property.path || name;
     if (!property.type) {
-      const designType = Reflect.getMetadata("design:type", target, name);
+      const designType = Reflect.getMetadata(DESIGN_TYPE, target, name);
       property.type = designType === Array ? [] : designType;
     }
     return property;

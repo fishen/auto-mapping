@@ -20,7 +20,6 @@ class Person extends Base {
         src.name = "fisher";
     }
     [MAPPED](src: any, options: any) {
-        console.log(2);
         //set value manually.
         this.gender = true;
         //override origin property value.;

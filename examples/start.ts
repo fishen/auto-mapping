@@ -15,4 +15,3 @@ const data = {
     others: { number: '18' },
 };
 const result = map(data, Person);
-console.log(result);

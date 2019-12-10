@@ -91,6 +91,9 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DESIGN_PARAM_TYPES = "design:paramtypes";
+exports.DESIGN_TYPE = "design:type";
+exports.DESIGN_RETURN_TYPE = "design:returntype";
 exports.CURRENT_PATH = ".";
 exports.DEFAULT_PROPERTY_SEP = ".";
 exports.DEFAULT_SOURCE = Symbol("DEFAULT_PROPERTY_SOURCE");
@@ -248,6 +251,85 @@ function isValid(value, options) {
     }
 }
 exports.isValid = isValid;
+var DecoractorTarget;
+(function (DecoractorTarget) {
+    DecoractorTarget["argument"] = "argument";
+    DecoractorTarget["class"] = "class";
+    DecoractorTarget["gettter"] = "gettter";
+    DecoractorTarget["method"] = "method";
+    DecoractorTarget["property"] = "property";
+    DecoractorTarget["setter"] = "setter";
+})(DecoractorTarget = exports.DecoractorTarget || (exports.DecoractorTarget = {}));
+// tslint:disable-next-line
+function isFn(target) {
+    return typeof target === "function";
+}
+exports.isFn = isFn;
+function isObj(target, canBeNull) {
+    if (canBeNull === void 0) { canBeNull = false; }
+    if (typeof target !== "object") {
+        return false;
+    }
+    return canBeNull || target !== null;
+}
+exports.isObj = isObj;
+function isNum(target, canBeNaN) {
+    if (canBeNaN === void 0) { canBeNaN = false; }
+    if (typeof target !== "number") {
+        return false;
+    }
+    return canBeNaN || isNaN(target);
+}
+exports.isNum = isNum;
+function isStr(target) {
+    return typeof target === "string";
+}
+exports.isStr = isStr;
+var decoractorTargetDict = new Map([
+    [DecoractorTarget.argument, function (target, name, index) {
+            return isObj(target) && isNum(index);
+        }],
+    [DecoractorTarget.class, function (target, name, descriptor) {
+            return isFn(target) && name === undefined && descriptor === undefined;
+        }],
+    [DecoractorTarget.gettter, function (target, name, descriptor) {
+            return isObj(target) && isObj(descriptor) && isFn(descriptor.get);
+        }],
+    [DecoractorTarget.method, function (target, name, descriptor) {
+            return isObj(target) && isObj(descriptor) && isFn(descriptor.value);
+        }],
+    [DecoractorTarget.property, function (target, name, descriptor) {
+            return isObj(target) && isStr(name) && descriptor === undefined;
+        }],
+    [DecoractorTarget.setter, function (target, name, descriptor) {
+            return isObj(target) && isObj(descriptor) && isFn(descriptor.set);
+        }],
+]);
+function checkDecoractorTarget(decoractor) {
+    var targets = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        targets[_i - 1] = arguments[_i];
+    }
+    return function (target, name, descriptor) {
+        var satisfied = targets.some(function (t) {
+            var predicate = decoractorTargetDict.get(t);
+            if (!predicate) {
+                throw new TypeError("unknown decoractor target " + t + ".");
+            }
+            return predicate(target, name, descriptor);
+        });
+        if (!satisfied) {
+            var types = targets.join();
+            var className = isFn(target) ? target.name : target.constructor.name;
+            throw new Error("[" + className + "|" + name + "] The decorator '" + decoractor + "' can only be used on member types: " + types);
+        }
+    };
+}
+exports.checkDecoractorTarget = checkDecoractorTarget;
+function isGetter(target, name, descriptor) {
+    return decoractorTargetDict.get(DecoractorTarget.gettter)(target, name, descriptor);
+}
+exports.isGetter = isGetter;
 
 
 /***/ }),
@@ -283,7 +365,7 @@ var Property = /** @class */ (function () {
         }
         property.path = property.path || name;
         if (!property.type) {
-            var designType = reflect_1.default.getMetadata("design:type", target, name);
+            var designType = reflect_1.default.getMetadata(constants_1.DESIGN_TYPE, target, name);
             property.type = designType === Array ? [] : designType;
         }
         return property;
@@ -397,7 +479,8 @@ var utils_1 = __webpack_require__(2);
  * @param options mapping options
  */
 function mapping(options) {
-    return function (target, name) {
+    return function (target, name, descriptor) {
+        utils_1.checkDecoractorTarget("mapping", utils_1.DecoractorTarget.property, utils_1.DecoractorTarget.gettter)(target, name, descriptor);
         var property = property_1.Property.from(options, target, name);
         var properties = property_1.Property.getProperties(target, { source: property.source });
         var index = properties.findIndex(function (p) { return p.name === property.name; });
