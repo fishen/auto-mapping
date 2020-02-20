@@ -1,5 +1,5 @@
 import { PROPERTIES_KEY } from "./constants";
-import { CONVERTERS, map } from "./converter";
+import { Mapper } from "./converter";
 import { Converter, IProperty } from "./interface";
 import { Property } from "./property";
 import Reflect from "./reflect";
@@ -13,15 +13,11 @@ export function mapping<T = any>(options?: IProperty<T> | Converter<T>) {
     return function(target: any, name?: string, descriptor?: PropertyDescriptor) {
         checkDecoractorTarget("mapping", Target.property)(target, name, descriptor);
         const property = Property.from(options, target, name);
-        const properties = Property.getProperties(target, { source: property.source });
+        const properties = Mapper.getProperties(target, { source: property.source });
         const index = properties.findIndex((p) => p.name === property.name);
         // tslint:disable-next-line
         ~index && properties.splice(index, 1);
         pushByOrder(properties, property, (item) => item.order);
-        const ctor = target.constructor;
-        if (!CONVERTERS.has(ctor)) {
-            CONVERTERS.set(ctor, (value, src, dest, opts) => map(value, ctor, opts));
-        }
         Reflect.defineMetadata(PROPERTIES_KEY, properties, target, property.source);
     };
 }

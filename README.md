@@ -1,7 +1,8 @@
-# AUTO-MAPPING
+# auto-mapping
 Map and convert objects automatically in typescript.
 # Features
 * Map object to an instance of a class by annotation;
+* Map object to another object which only has the mapped property;
 * Convert property types automatically;
 * Custom conversion;
 * Multiple data source mappings;
@@ -24,7 +25,7 @@ To enable experimental support for decorators, you must enable the experimentalD
 ```
 ```ts
 import 'reflect-metadata';
-import { mapping, map } from 'auto-mapping';
+import { mapping, map, select } from 'auto-mapping';
 
 class Person {
     @mapping({ type: String })
@@ -32,20 +33,23 @@ class Person {
     @mapping(Boolean) // short form
     gender: boolean;
     @mapping({ path: 'others.number', type: Number })
-    age: number
+    age: number;
+    extraData = 1;
 }
 const data={
     name: 'fisher',
     gender: 1,
     others: { number: '18' },
 };
-console.info(map(data, Person));
+console.info("Mapped result:", map(data, Person));
+console.info("Selected result:", select(data, Person));
 ```
 ```sh
 # output
-Person { name: 'fisher', gender: true, age: 18 }
+Mapped result: Person { extraData: 1, name: 'fisher', gender: true, age: 18 }
+Selected result: { name: 'fisher', gender: true, age: 18 }
 ```
-# More Convenient Use(reflect-metadata)
+# Use with reflect-metadata
 If you have already imported **reflect-metadata** module into your project, it will infer type automatic except array type.
 The array type must declare the **type** parameter at any time.
 ```ts
@@ -305,6 +309,8 @@ If the function returns a value that is not undefined, it will replace the map r
 { num: 100, gender: true, a: 1, b: 2 } false
 ```
 # Update Logs
+## 1.3.0
+* added `select` function.
 ## 1.2.1
 * compatible for mini-programs.
 ## 1.2.0

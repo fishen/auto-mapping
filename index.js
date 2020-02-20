@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -108,96 +108,27 @@ exports.DEFAULT_ORDER = 0;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
+/* WEBPACK VAR INJECTION */(function(global) {
 Object.defineProperty(exports, "__esModule", { value: true });
-var constants_1 = __webpack_require__(0);
-var property_1 = __webpack_require__(3);
-var utils_1 = __webpack_require__(2);
-/**
- * Global conversion function container
- */
-exports.CONVERTERS = new Map([
-    [String, function (value, src, dest, options) { return utils_1.isValid(value, options) ? String(value) : value; }],
-    [Boolean, function (value, src, dest, options) { return utils_1.isValid(value, options) ? Boolean(value) : value; }],
-    [Number, function (value, src, dest, options) { return utils_1.isValid(value, options) ? Number(value) : value; }],
-    [Date, function (value, src, dest, options) { return utils_1.isValid(value, options) ? new Date(value) : value; }],
-]);
-/**
- * Get the conversion function of the specified type.
- * @param type conversion type
- * @param options mapping options
- */
-function getConverter(type, options) {
-    if (typeof type === "function") {
-        if (options && options.converters instanceof Map && options.converters.has(type)) {
-            return options.converters.get(type);
-        }
-        else if (exports.CONVERTERS.has(type)) {
-            return exports.CONVERTERS.get(type);
-        }
-        else {
-            return type;
-        }
-    }
-    else {
-        return function (value) { return value; };
-    }
+__webpack_require__(8);
+function isValid(obj) {
+    return typeof obj === "object" && typeof obj.getMetadata === "function";
 }
-exports.getConverter = getConverter;
-/**
- * Map an object to an instance of the specified type.
- * @param src Data source object.
- * @param constuctor The type of instance, the constructor function of the class.
- * @param options Mapping options.
- */
-function map(src, constuctor, options) {
-    var instance = null;
-    options = Object.assign({ useDefaultSource: true }, options);
-    if (typeof constuctor.prototype[constants_1.MAPPING] === "function") {
-        var mappingResult = constuctor.prototype[constants_1.MAPPING](src, options);
-        src = mappingResult === undefined ? src : mappingResult;
+var reflect = (function () {
+    if (isValid(Reflect)) {
+        return Reflect;
     }
-    if (!utils_1.isNil(src) && typeof src === "object") {
-        instance = new constuctor();
-        var properties = property_1.Property.getProperties(constuctor.prototype, options);
-        properties.forEach(function (property) {
-            var result;
-            try {
-                result = property.convert(src, instance, options);
-            }
-            catch (error) {
-                console.error(error);
-            }
-            var name = property.name, df = property.default;
-            result = utils_1.isValid(result, options) ? result : df !== undefined ? df : instance[name];
-            instance[name] = result;
-        });
+    else if (isValid(global.Reflect)) {
+        return global.Reflect;
     }
-    if (typeof constuctor.prototype[constants_1.MAPPED] === "function") {
-        var result = constuctor.prototype[constants_1.MAPPED].call(instance, src, options);
-        if (result !== undefined) {
-            return result;
-        }
+    else if (isValid(global.global && global.global.Reflect)) {
+        return global.global.Reflect;
     }
-    return instance;
-}
-exports.map = map;
-/**
- * Set the global conversion function for the specified type
- * @param type The type of value to convert
- * @param converter The conversion function
- * @example map.setDefaultConverter(String,(value)=>value!==null&&value!==undefined?value:'')
- */
-map.setDefaultConverter = function (type, converter) {
-    if (typeof type !== "function") {
-        throw new TypeError("The 'type' parameter must be a function type");
-    }
-    if (typeof converter !== "function") {
-        throw new TypeError("The 'type' parameter must be a function type");
-    }
-    exports.CONVERTERS.set(type, converter);
-};
+    return {};
+}());
+exports.default = reflect;
 
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(7)))
 
 /***/ }),
 /* 2 */
@@ -342,76 +273,150 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var secure_template_1 = __webpack_require__(7);
+var secure_template_1 = __webpack_require__(6);
 var constants_1 = __webpack_require__(0);
-var converter_1 = __webpack_require__(1);
-var reflect_1 = __importDefault(__webpack_require__(4));
+var constants_2 = __webpack_require__(0);
+var reflect_1 = __importDefault(__webpack_require__(1));
 var utils_1 = __webpack_require__(2);
-var Property = /** @class */ (function () {
-    function Property() {
-        this.order = constants_1.DEFAULT_ORDER;
-        this.source = constants_1.DEFAULT_SOURCE;
+var Mapper = /** @class */ (function () {
+    function Mapper(instance, data, ctor, options) {
+        this.instance = instance;
+        this.ctor = ctor;
+        this.prototype = ctor.prototype;
+        this.options = Object.assign({ useDefaultSource: true, source: constants_1.DEFAULT_SOURCE }, options);
+        if (typeof ctor.prototype[constants_1.MAPPING] === "function") {
+            var mappingResult = ctor.prototype[constants_1.MAPPING](data, options);
+            data = mappingResult === undefined ? data : mappingResult;
+        }
+        this.data = data;
     }
-    Property.from = function (options, target, name) {
-        options = typeof options === "function" ? { type: options } : (options || {});
-        var property = new Property();
-        property.name = name;
-        utils_1.validAssign(property, options);
-        if (options.domain) {
-            if (!options.path) {
-                // The option domain will be ignored when used with path.
-                property.path = [options.domain, name].join(constants_1.DEFAULT_PROPERTY_SEP);
-            }
-        }
-        property.path = property.path || name;
-        if (!property.type) {
-            var designType = reflect_1.default.getMetadata(constants_1.DESIGN_TYPE, target, name);
-            property.type = designType === Array ? [] : designType;
-        }
-        return property;
-    };
     /**
      * Get the properties bound on the prototype object
      * @param prototype prototype object
      * @param options mapping options
      */
-    Property.getProperties = function (prototype, options) {
-        options = Object.assign({ source: constants_1.DEFAULT_SOURCE }, options);
-        var source = options.source, useDefaultSource = options.useDefaultSource;
-        var properties = reflect_1.default.getMetadata(constants_1.PROPERTIES_KEY, prototype, source);
+    Mapper.getProperties = function (prototype, options) {
+        var _a = Object.assign({ source: constants_1.DEFAULT_SOURCE }, options), source = _a.source, useDefaultSource = _a.useDefaultSource;
+        var properties = reflect_1.default.getMetadata(constants_2.PROPERTIES_KEY, prototype, source);
         properties = properties ? properties.slice() : [];
         if (source !== constants_1.DEFAULT_SOURCE && useDefaultSource) {
-            var dfProperties = Property.getProperties(prototype);
+            var dfProperties = Mapper.getProperties(prototype);
             dfProperties.filter(function (p) { return !properties.some(function (x) { return x.name === p.name; }); })
                 .forEach(function (p) { return utils_1.pushByOrder(properties, p, function (m) { return m.order; }); });
         }
         return properties;
     };
-    /**
-     * The conversion function
-     * @param src source value
-     * @param dest dest value
-     * @param options mapping options
-     */
-    Property.prototype.convert = function (src, dest, options) {
-        var value = this.path === constants_1.CURRENT_PATH ? src : secure_template_1.resolve(this.path, src);
-        if (Array.isArray(this.type)) {
-            if (!utils_1.isValid(value, options)) {
-                return value;
+    Mapper.prototype.map = function () {
+        var _this = this;
+        if (this.isValidSourceData()) {
+            var properties = Mapper.getProperties(this.prototype, this.options);
+            properties.forEach(function (p) { return _this.instance[p.name] = _this.getPropertyValue(p); });
+        }
+        var mappedResult = this.getMappedResult();
+        return mappedResult === undefined ? this.instance : mappedResult;
+    };
+    Mapper.prototype.getConverter = function (type) {
+        var _this = this;
+        if (typeof type === "function") {
+            if (this.options && this.options.converters instanceof Map && this.options.converters.has(type)) {
+                return this.options.converters.get(type);
             }
-            var convert_1 = converter_1.getConverter(this.type[0], options);
-            value = Array.isArray(value) ? value : [value];
-            value = value.map(function (item) { return convert_1(item, src, dest, options); });
+            else if (Mapper.converters.has(type)) {
+                return Mapper.converters.get(type);
+            }
+            else if (reflect_1.default.hasMetadata(constants_2.PROPERTIES_KEY, type.prototype, this.options.source || constants_1.DEFAULT_SOURCE)) {
+                return function (value, src, dest, opts) { return _this.customConverter(value, type, opts); };
+            }
+            else {
+                return type;
+            }
         }
         else {
-            var convert = converter_1.getConverter(this.type, options);
-            value = convert(value, src, dest, options);
+            return function (value) { return value; };
         }
+    };
+    Mapper.prototype.getPropertyValue = function (p) {
+        var _this = this;
+        var value;
+        try {
+            value = p.path === constants_1.CURRENT_PATH ? this.data : secure_template_1.resolve(p.path, this.data);
+            if (Array.isArray(p.type)) {
+                if (utils_1.isValid(value, this.options)) {
+                    var convert_1 = this.getConverter(p.type[0]);
+                    value = Array.isArray(value) ? value : [value];
+                    value = value.map(function (item) { return convert_1(item, _this.data, _this.instance, _this.options); });
+                }
+            }
+            else {
+                var convert = this.getConverter(p.type);
+                value = convert(value, this.data, this.instance, this.options);
+            }
+        }
+        catch (error) {
+            console.error(error);
+        }
+        value = utils_1.isValid(value, this.options) ? value : p.default !== undefined ? p.default : this.instance[p.name];
         return value;
     };
-    return Property;
+    Mapper.prototype.getMappedResult = function () {
+        if (typeof this.prototype[constants_1.MAPPED] === "function") {
+            var result = this.prototype[constants_1.MAPPED].call(this.instance, this.data, this.options);
+            if (result !== undefined) {
+                return result;
+            }
+        }
+    };
+    Mapper.prototype.isValidSourceData = function () {
+        return !utils_1.isNil(this.data) && typeof this.data === "object";
+    };
+    Mapper.converters = new Map([
+        [String, function (value, src, dest, options) { return utils_1.isValid(value, options) ? String(value) : value; }],
+        [Boolean, function (value, src, dest, options) { return utils_1.isValid(value, options) ? Boolean(value) : value; }],
+        [Number, function (value, src, dest, options) { return utils_1.isValid(value, options) ? Number(value) : value; }],
+        [Date, function (value, src, dest, options) { return utils_1.isValid(value, options) ? new Date(value) : value; }],
+    ]);
+    return Mapper;
 }());
-exports.Property = Property;
+exports.Mapper = Mapper;
+/**
+ * Map an object to an instance of the specified type.
+ * @param src Data source object.
+ * @param constuctor The type of instance, the constructor function of the class.
+ * @param options Mapping options.
+ */
+function map(src, constuctor, options) {
+    var mapper = new Mapper(new constuctor(), src, constuctor, options);
+    mapper.customConverter = map;
+    return mapper.map();
+}
+exports.map = map;
+/**
+ * Map an object to another object which only has the mapped property.
+ * @param src Data source object.
+ * @param constuctor The type of instance, the constructor function of the class.
+ * @param options Mapping options.
+ */
+function select(src, constuctor, options) {
+    var mapper = new Mapper(Object.create({}), src, constuctor, options);
+    mapper.customConverter = select;
+    return mapper.map();
+}
+exports.select = select;
+/**
+ * Set the global conversion function for the specified type
+ * @param type The type of value to convert
+ * @param converter The conversion function
+ * @example map.setDefaultConverter(String,(value)=>value!==null&&value!==undefined?value:'')
+ */
+map.setDefaultConverter = function (type, converter) {
+    if (typeof type !== "function") {
+        throw new TypeError("The 'type' parameter must be a function type");
+    }
+    if (typeof converter !== "function") {
+        throw new TypeError("The 'type' parameter must be a function type");
+    }
+    Mapper.converters.set(type, converter);
+};
 
 
 /***/ }),
@@ -419,39 +424,13 @@ exports.Property = Property;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(9);
-function isValid(obj) {
-    return typeof obj === "object" && typeof obj.getMetadata === "function";
-}
-var reflect = (function () {
-    if (isValid(Reflect)) {
-        return Reflect;
-    }
-    else if (isValid(global.Reflect)) {
-        return global.Reflect;
-    }
-    else if (isValid(global.global && global.global.Reflect)) {
-        return global.global.Reflect;
-    }
-    return {};
-}());
-exports.default = reflect;
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var decorator_1 = __webpack_require__(6);
+var decorator_1 = __webpack_require__(5);
 exports.mapping = decorator_1.mapping;
-var converter_1 = __webpack_require__(1);
+var converter_1 = __webpack_require__(3);
 exports.map = converter_1.map;
+exports.select = converter_1.select;
 var constants_1 = __webpack_require__(0);
 exports.DEFAULT_SOURCE = constants_1.DEFAULT_SOURCE;
 exports.MAPPED = constants_1.MAPPED;
@@ -460,7 +439,7 @@ exports.after = constants_1.MAPPED;
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -470,9 +449,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var constants_1 = __webpack_require__(0);
-var converter_1 = __webpack_require__(1);
-var property_1 = __webpack_require__(3);
-var reflect_1 = __importDefault(__webpack_require__(4));
+var converter_1 = __webpack_require__(3);
+var property_1 = __webpack_require__(9);
+var reflect_1 = __importDefault(__webpack_require__(1));
 var utils_1 = __webpack_require__(2);
 /**
  * The required annotations for object mapping which can only be used on instance properties.
@@ -480,17 +459,13 @@ var utils_1 = __webpack_require__(2);
  */
 function mapping(options) {
     return function (target, name, descriptor) {
-        utils_1.checkDecoractorTarget("mapping", utils_1.DecoractorTarget.property, utils_1.DecoractorTarget.gettter)(target, name, descriptor);
+        utils_1.checkDecoractorTarget("mapping", utils_1.DecoractorTarget.property)(target, name, descriptor);
         var property = property_1.Property.from(options, target, name);
-        var properties = property_1.Property.getProperties(target, { source: property.source });
+        var properties = converter_1.Mapper.getProperties(target, { source: property.source });
         var index = properties.findIndex(function (p) { return p.name === property.name; });
         // tslint:disable-next-line
         ~index && properties.splice(index, 1);
         utils_1.pushByOrder(properties, property, function (item) { return item.order; });
-        var ctor = target.constructor;
-        if (!converter_1.CONVERTERS.has(ctor)) {
-            converter_1.CONVERTERS.set(ctor, function (value, src, dest, opts) { return converter_1.map(value, ctor, opts); });
-        }
         reflect_1.default.defineMetadata(constants_1.PROPERTIES_KEY, properties, target, property.source);
     };
 }
@@ -498,13 +473,13 @@ exports.mapping = mapping;
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports) {
 
 module.exports = require("secure-template");
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports) {
 
 var g;
@@ -530,10 +505,51 @@ module.exports = g;
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports) {
 
 module.exports = require("reflect-metadata");
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var constants_1 = __webpack_require__(0);
+var reflect_1 = __importDefault(__webpack_require__(1));
+var utils_1 = __webpack_require__(2);
+var Property = /** @class */ (function () {
+    function Property() {
+        this.order = constants_1.DEFAULT_ORDER;
+        this.source = constants_1.DEFAULT_SOURCE;
+    }
+    Property.from = function (options, target, name) {
+        options = typeof options === "function" ? { type: options } : (options || {});
+        var property = new Property();
+        property.name = name;
+        utils_1.validAssign(property, options);
+        if (options.domain) {
+            if (!options.path) {
+                // The option domain will be ignored when used with path.
+                property.path = [options.domain, name].join(constants_1.DEFAULT_PROPERTY_SEP);
+            }
+        }
+        property.path = property.path || name;
+        if (!property.type) {
+            var designType = reflect_1.default.getMetadata(constants_1.DESIGN_TYPE, target, name);
+            property.type = designType === Array ? [] : designType;
+        }
+        return property;
+    };
+    return Property;
+}());
+exports.Property = Property;
+
 
 /***/ })
 /******/ ])));

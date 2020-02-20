@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { mapping, map } from 'auto-mapping';
+import { mapping, map, select } from 'auto-mapping';
 
 class Person {
     @mapping()
