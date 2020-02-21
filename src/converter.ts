@@ -54,13 +54,20 @@ export class Mapper<T extends new (...args: any[]) => any> {
     const mappedResult = this.getMappedResult();
     return mappedResult === undefined ? this.instance : mappedResult;
   }
+  private hasProperties(prototype: any) {
+    const result = Reflect.hasMetadata(PROPERTIES_KEY, prototype, this.options.source);
+    if (result) { return true; }
+    if (this.options.useDefaultSource) {
+      return Reflect.hasMetadata(PROPERTIES_KEY, prototype, DEFAULT_SOURCE);
+    }
+  }
   private getConverter(type: PropertyType<T>): Converter<T> {
     if (typeof type === "function") {
       if (this.options && this.options.converters instanceof Map && this.options.converters.has(type)) {
         return this.options.converters.get(type);
       } else if (Mapper.converters.has(type)) {
         return Mapper.converters.get(type)!;
-      } else if (Reflect.hasMetadata(PROPERTIES_KEY, type.prototype, this.options.source || DEFAULT_SOURCE)) {
+      } else if (this.hasProperties(type.prototype)) {
         return (value, src, dest, opts) => this.customConverter(value, type, opts);
       } else {
         return type as any;

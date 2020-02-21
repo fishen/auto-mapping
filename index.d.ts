@@ -135,6 +135,7 @@ declare module "auto-mapping/src/converter" {
         customConverter: (...args: any) => any;
         constructor(instance: any, data: any, ctor: T, options?: IMappingOptions);
         map(): any;
+        private hasProperties;
         private getConverter;
         private getPropertyValue;
         private getMappedResult;

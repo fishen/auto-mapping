@@ -315,6 +315,15 @@ var Mapper = /** @class */ (function () {
         var mappedResult = this.getMappedResult();
         return mappedResult === undefined ? this.instance : mappedResult;
     };
+    Mapper.prototype.hasProperties = function (prototype) {
+        var result = reflect_1.default.hasMetadata(constants_2.PROPERTIES_KEY, prototype, this.options.source);
+        if (result) {
+            return true;
+        }
+        if (this.options.useDefaultSource) {
+            return reflect_1.default.hasMetadata(constants_2.PROPERTIES_KEY, prototype, constants_1.DEFAULT_SOURCE);
+        }
+    };
     Mapper.prototype.getConverter = function (type) {
         var _this = this;
         if (typeof type === "function") {
@@ -324,7 +333,7 @@ var Mapper = /** @class */ (function () {
             else if (Mapper.converters.has(type)) {
                 return Mapper.converters.get(type);
             }
-            else if (reflect_1.default.hasMetadata(constants_2.PROPERTIES_KEY, type.prototype, this.options.source || constants_1.DEFAULT_SOURCE)) {
+            else if (this.hasProperties(type.prototype)) {
                 return function (value, src, dest, opts) { return _this.customConverter(value, type, opts); };
             }
             else {
