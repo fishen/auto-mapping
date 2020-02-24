@@ -308,10 +308,11 @@ var Mapper = /** @class */ (function () {
     };
     Mapper.prototype.map = function () {
         var _this = this;
-        if (this.isValidSourceData()) {
-            var properties = Mapper.getProperties(this.prototype, this.options);
-            properties.forEach(function (p) { return _this.instance[p.name] = _this.getPropertyValue(p); });
+        if (!this.isValidSourceData()) {
+            return null;
         }
+        var properties = Mapper.getProperties(this.prototype, this.options);
+        properties.forEach(function (p) { return _this.instance[p.name] = _this.getPropertyValue(p); });
         var mappedResult = this.getMappedResult();
         return mappedResult === undefined ? this.instance : mappedResult;
     };

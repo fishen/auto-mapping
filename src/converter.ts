@@ -47,10 +47,9 @@ export class Mapper<T extends new (...args: any[]) => any> {
     this.data = data;
   }
   public map() {
-    if (this.isValidSourceData()) {
-      const properties = Mapper.getProperties<T>(this.prototype, this.options);
-      properties.forEach((p) => this.instance[p.name] = this.getPropertyValue(p));
-    }
+    if (!this.isValidSourceData()) { return null; }
+    const properties = Mapper.getProperties<T>(this.prototype, this.options);
+    properties.forEach((p) => this.instance[p.name] = this.getPropertyValue(p));
     const mappedResult = this.getMappedResult();
     return mappedResult === undefined ? this.instance : mappedResult;
   }
