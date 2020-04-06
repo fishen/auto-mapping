@@ -18,12 +18,12 @@ export class Mapper<T extends new (...args: any[]) => any> {
    * @param prototype prototype object
    * @param options mapping options
    */
-  public static getProperties<T>(prototype: object, options?: IMappingOptions): Array<Property<T>> {
+  public static getProperties<T>(prototype: object, options?: IMappingOptions): Property<T>[] {
     const { source, useDefaultSource } = Object.assign({ source: DEFAULT_SOURCE }, options);
-    let properties: Array<Property<T>> = Reflect.getMetadata(PROPERTIES_KEY, prototype, source);
+    let properties: Property<T>[] = Reflect.getMetadata(PROPERTIES_KEY, prototype, source);
     properties = properties ? properties.slice() : [];
     if (source !== DEFAULT_SOURCE && useDefaultSource) {
-      const dfProperties: Array<Property<T>> = Mapper.getProperties(prototype);
+      const dfProperties: Property<T>[] = Mapper.getProperties(prototype);
       dfProperties.filter((p) => !properties.some((x) => x.name === p.name))
         .forEach((p) => pushByOrder(properties, p, (m) => m.order));
     }

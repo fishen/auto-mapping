@@ -34,16 +34,16 @@
     "secure-template": "^1.0.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.9",
-    "@types/mocha": "^5.2.7",
-    "bundle-dts": "^1.1.2",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "bundle-dts": "^1.1.3",
     "chai": "^4.2.0",
-    "mocha": "^6.2.2",
-    "ts-loader": "^6.2.1",
-    "ts-node": "^8.6.2",
-    "tslint": "^5.20.1",
-    "typescript": "^3.7.5",
-    "webpack": "^4.41.6",
+    "mocha": "^7.1.1",
+    "ts-loader": "^6.2.2",
+    "ts-node": "^8.8.2",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.2"
   }
