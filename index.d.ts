@@ -89,20 +89,10 @@ declare module "auto-mapping/src/utils" {
         nullable?: boolean;
         allowNaN?: boolean;
     }): boolean;
-    export enum DecoractorTarget {
-        argument = "argument",
-        class = "class",
-        gettter = "gettter",
-        method = "method",
-        property = "property",
-        setter = "setter"
-    }
     export function isFn(target: any): target is Function;
     export function isObj(target: any, canBeNull?: boolean): target is object;
     export function isNum(target: any, canBeNaN?: boolean): target is number;
     export function isStr(target: any): target is string;
-    export function checkDecoractorTarget(decoractor: string, ...targets: DecoractorTarget[]): (target: any, name?: string, descriptor?: PropertyDescriptor) => void;
-    export function isGetter(target: any, name: string, descriptor: PropertyDescriptor): boolean;
 }
 declare module "auto-mapping/src/property" {
     import { Converter, IProperty, PropertyType } from "auto-mapping/src/interface";
@@ -165,7 +155,7 @@ declare module "auto-mapping/src/decorator" {
      * The required annotations for object mapping which can only be used on instance properties.
      * @param options mapping options
      */
-    export function mapping<T = any>(options?: IProperty<T> | Converter<T>): (target: any, name?: string, descriptor?: PropertyDescriptor) => void;
+    export function mapping<T = any>(options?: IProperty<T> | Converter<T>): (target: any, name?: string) => void;
 }
 declare module "auto-mapping" {
     export { mapping } from "auto-mapping/src/decorator";

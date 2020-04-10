@@ -182,15 +182,6 @@ function isValid(value, options) {
     }
 }
 exports.isValid = isValid;
-var DecoractorTarget;
-(function (DecoractorTarget) {
-    DecoractorTarget["argument"] = "argument";
-    DecoractorTarget["class"] = "class";
-    DecoractorTarget["gettter"] = "gettter";
-    DecoractorTarget["method"] = "method";
-    DecoractorTarget["property"] = "property";
-    DecoractorTarget["setter"] = "setter";
-})(DecoractorTarget = exports.DecoractorTarget || (exports.DecoractorTarget = {}));
 // tslint:disable-next-line
 function isFn(target) {
     return typeof target === "function";
@@ -216,51 +207,6 @@ function isStr(target) {
     return typeof target === "string";
 }
 exports.isStr = isStr;
-var decoractorTargetDict = new Map([
-    [DecoractorTarget.argument, function (target, name, index) {
-            return isObj(target) && isNum(index);
-        }],
-    [DecoractorTarget.class, function (target, name, descriptor) {
-            return isFn(target) && name === undefined && descriptor === undefined;
-        }],
-    [DecoractorTarget.gettter, function (target, name, descriptor) {
-            return isObj(target) && isObj(descriptor) && isFn(descriptor.get);
-        }],
-    [DecoractorTarget.method, function (target, name, descriptor) {
-            return isObj(target) && isObj(descriptor) && isFn(descriptor.value);
-        }],
-    [DecoractorTarget.property, function (target, name, descriptor) {
-            return isObj(target) && isStr(name) && descriptor === undefined;
-        }],
-    [DecoractorTarget.setter, function (target, name, descriptor) {
-            return isObj(target) && isObj(descriptor) && isFn(descriptor.set);
-        }],
-]);
-function checkDecoractorTarget(decoractor) {
-    var targets = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        targets[_i - 1] = arguments[_i];
-    }
-    return function (target, name, descriptor) {
-        var satisfied = targets.some(function (t) {
-            var predicate = decoractorTargetDict.get(t);
-            if (!predicate) {
-                throw new TypeError("unknown decoractor target " + t + ".");
-            }
-            return predicate(target, name, descriptor);
-        });
-        if (!satisfied) {
-            var types = targets.join();
-            var className = isFn(target) ? target.name : target.constructor.name;
-            throw new Error("[" + className + "|" + name + "] The decorator '" + decoractor + "' can only be used on member types: " + types);
-        }
-    };
-}
-exports.checkDecoractorTarget = checkDecoractorTarget;
-function isGetter(target, name, descriptor) {
-    return decoractorTargetDict.get(DecoractorTarget.gettter)(target, name, descriptor);
-}
-exports.isGetter = isGetter;
 
 
 /***/ }),
@@ -468,8 +414,7 @@ var utils_1 = __webpack_require__(2);
  * @param options mapping options
  */
 function mapping(options) {
-    return function (target, name, descriptor) {
-        utils_1.checkDecoractorTarget("mapping", utils_1.DecoractorTarget.property)(target, name, descriptor);
+    return function (target, name) {
         var property = property_1.Property.from(options, target, name);
         var properties = converter_1.Mapper.getProperties(target, { source: property.source });
         var index = properties.findIndex(function (p) { return p.name === property.name; });

@@ -39,15 +39,6 @@ export function isValid(value: any, options?: { nullable?: boolean, allowNaN?: b
     }
 }
 
-export enum DecoractorTarget {
-    argument = "argument",
-    class = "class",
-    gettter = "gettter",
-    method = "method",
-    property = "property",
-    setter = "setter",
-}
-
 // tslint:disable-next-line
 export function isFn(target: any): target is Function {
     return typeof target === "function";
@@ -65,45 +56,4 @@ export function isNum(target: any, canBeNaN = false): target is number {
 
 export function isStr(target: any): target is string {
     return typeof target === "string";
-}
-
-const decoractorTargetDict: Map<DecoractorTarget,
-    (target: any, name?: string, descriptor?: PropertyDescriptor | number) => boolean> = new Map([
-        [DecoractorTarget.argument, (target, name, index) => {
-            return isObj(target) && isNum(index);
-        }],
-        [DecoractorTarget.class, (target, name, descriptor) => {
-            return isFn(target) && name === undefined && descriptor === undefined;
-        }],
-        [DecoractorTarget.gettter, (target, name, descriptor: PropertyDescriptor) => {
-            return isObj(target) && isObj(descriptor) && isFn(descriptor.get);
-        }],
-        [DecoractorTarget.method, (target, name, descriptor: PropertyDescriptor) => {
-            return isObj(target) && isObj(descriptor) && isFn(descriptor.value);
-        }],
-        [DecoractorTarget.property, (target, name, descriptor) => {
-            return isObj(target) && isStr(name) && descriptor === undefined;
-        }],
-        [DecoractorTarget.setter, (target, name, descriptor: PropertyDescriptor) => {
-            return isObj(target) && isObj(descriptor) && isFn(descriptor.set);
-        }],
-    ]);
-
-export function checkDecoractorTarget(decoractor: string, ...targets: DecoractorTarget[]) {
-    return function(target: any, name?: string, descriptor?: PropertyDescriptor) {
-        const satisfied = targets.some((t) => {
-            const predicate = decoractorTargetDict.get(t)!;
-            if (!predicate) { throw new TypeError(`unknown decoractor target ${t}.`); }
-            return predicate(target, name, descriptor);
-        });
-        if (!satisfied) {
-            const types = targets.join();
-            const className = isFn(target) ? target.name : target.constructor.name;
-            throw new Error(`[${className}|${name}] The decorator '${decoractor}' can only be used on member types: ${types}`);
-        }
-    };
-}
-
-export function isGetter(target: any, name: string, descriptor: PropertyDescriptor) {
-    return decoractorTargetDict.get(DecoractorTarget.gettter)(target, name, descriptor);
 }
