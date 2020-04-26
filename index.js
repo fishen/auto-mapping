@@ -263,6 +263,8 @@ var Mapper = /** @class */ (function () {
         return mappedResult === undefined ? this.instance : mappedResult;
     };
     Mapper.prototype.hasProperties = function (prototype) {
+        if (!prototype)
+            return false;
         var result = reflect_1.default.hasMetadata(constants_2.PROPERTIES_KEY, prototype, this.options.source);
         if (result) {
             return true;

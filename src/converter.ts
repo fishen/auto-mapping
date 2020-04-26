@@ -54,6 +54,7 @@ export class Mapper<T extends new (...args: any[]) => any> {
     return mappedResult === undefined ? this.instance : mappedResult;
   }
   private hasProperties(prototype: any) {
+    if (!prototype) return false;
     const result = Reflect.hasMetadata(PROPERTIES_KEY, prototype, this.options.source);
     if (result) { return true; }
     if (this.options.useDefaultSource) {
@@ -142,7 +143,7 @@ export function select<T extends new (...args: any[]) => any>(
  * @param converter The conversion function
  * @example map.setDefaultConverter(String,(value)=>value!==null&&value!==undefined?value:'')
  */
-map.setDefaultConverter = function(type: PropertyType, converter: Converter<any>) {
+map.setDefaultConverter = function (type: PropertyType, converter: Converter<any>) {
   if (typeof type !== "function") { throw new TypeError(`The 'type' parameter must be a function type`); }
   if (typeof converter !== "function") { throw new TypeError(`The 'type' parameter must be a function type`); }
   Mapper.converters.set(type, converter);
